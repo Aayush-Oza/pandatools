@@ -16,6 +16,29 @@ if (tool && document.getElementById("toolName")) {
 }
 
 // -----------------------------------------------------
+// Show selected file names (one per line)
+// -----------------------------------------------------
+document.getElementById("fileInput").addEventListener("change", () => {
+    const fileInput = document.getElementById("fileInput");
+    const list = document.getElementById("fileList");
+
+    list.innerHTML = "";
+
+    if (fileInput.files.length === 0) {
+        list.innerHTML = "<p>No file selected.</p>";
+        return;
+    }
+
+    for (let file of fileInput.files) {
+        const item = document.createElement("p");
+        item.textContent = "• " + file.name;
+        item.style.margin = "4px 0";
+        list.appendChild(item);
+    }
+});
+
+
+// -----------------------------------------------------
 // Show/Hide Inputs Based on Tool
 // -----------------------------------------------------
 if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
@@ -34,15 +57,77 @@ if (tool === "rotate-pdf") {
     document.getElementById("angleInput").style.display = "block";
 }
 
+/* -----------------------------------------------------
+   BETTER FILE LIST UI (matching your CSS)
+----------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const fileInput = document.getElementById("fileInput");
+
+    if (fileInput) {
+        fileInput.addEventListener("change", updateFileList);
+    }
+});
+
+function updateFileList() {
+    const input = document.getElementById("fileInput");
+    const list = document.getElementById("fileList");
+
+    list.innerHTML = "";
+
+    if (!input.files.length) {
+        list.innerHTML = "<p style='color:#777;'>No files selected</p>";
+        return;
+    }
+
+    [...input.files].forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "file-item";
+
+        item.innerHTML = `
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 
+              2 0 0 0 2 2h12a2 2 0 0 
+              0 2-2V8l-6-6zm1 7h5.5L15 
+              3.5V9z"/>
+            </svg>
+
+            <span class="file-name">${file.name}</span>
+
+            <button class="remove-btn" onclick="removeFile(${index})">×</button>
+        `;
+
+        list.appendChild(item);
+    });
+}
+
+function removeFile(index) {
+    const input = document.getElementById("fileInput");
+
+    // Create editable file list
+    const dt = new DataTransfer();
+    let files = [...input.files];
+
+    // Remove selected file
+    files.splice(index, 1);
+
+    // Add back remaining files
+    files.forEach(f => dt.items.add(f));
+
+    // Assign updated list back to input
+    input.files = dt.files;
+
+    // Refresh UI
+    updateFileList();
+}
+
 // -----------------------------------------------------
-// Process File (progress bar + backend API call)
+// Process File (with progress % + smooth loader)
 // -----------------------------------------------------
 async function processFile() {
     let fd = new FormData();
 
-    // ============================
-    // Handle multiple files
-    // ============================
+    // MULTIPLE FILE TOOLS
     if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
         const files = document.getElementById("fileInput").files;
 
@@ -53,89 +138,90 @@ async function processFile() {
         for (let f of files) fd.append("files", f);
     }
 
-    // ============================
-    // Single file tools
-    // ============================
+    // SINGLE FILE
     else {
         const file = document.getElementById("fileInput").files[0];
         if (!file) return alert("Select a file");
         fd.append("file", file);
     }
 
-    // ============================
-    // Split
-    // ============================
+    // SPLIT
     if (tool === "split-pdf") {
         const ranges = document.getElementById("rangeInput").value;
         if (!ranges) return alert("Enter page ranges");
         fd.append("ranges", ranges);
     }
 
-    // ============================
-    // Rotate
-    // ============================
+    // ROTATE
     if (tool === "rotate-pdf") {
         const angle = document.getElementById("angleInput").value;
         fd.append("angle", angle);
     }
 
-    // ============================
-    // Protect / Unlock
-    // ============================
+    // PASSWORD TOOLS
     if (tool === "protect-pdf" || tool === "unlock-pdf") {
         const pwd = document.getElementById("passwordInput").value;
         if (!pwd) return alert("Enter password");
         fd.append("password", pwd);
     }
 
-    // ============================
+    // ----------------------------
     // Show progress bar
-    // ============================
-    document.getElementById("progress-wrapper").style.display = "block";
+    // ----------------------------
+    const wrapper = document.getElementById("progress-wrapper");
+    const bar = document.getElementById("progress-bar");
+    const percentText = document.getElementById("progress-percent");
+
+    wrapper.style.display = "block";
     document.getElementById("download-btn").style.display = "none";
 
-    let bar = document.getElementById("progress-bar");
     bar.style.width = "0%";
+    percentText.innerText = "0%";
 
     // Fake progress animation
     let progress = 0;
     let fakeLoading = setInterval(() => {
-        progress += 7;
-        bar.style.width = progress + "%";
-        if (progress >= 90) clearInterval(fakeLoading);
-    }, 200);
+        progress += 6;
+        if (progress >= 90) progress = 90;
 
-    // ============================
+        bar.style.width = progress + "%";
+        percentText.innerText = progress + "%";
+    }, 180);
+
+    // ----------------------------
     // Send request to backend
-    // ============================
+    // ----------------------------
     const res = await fetch(`${API_BASE}/${tool}`, {
         method: "POST",
         body: fd
     });
 
     if (!res.ok) {
+        clearInterval(fakeLoading);
         bar.style.width = "0%";
+        percentText.innerText = "0%";
         alert(`Error: ${res.status}`);
         return;
     }
 
-    // ============================
-    // Extract Text (JSON only)
-    // ============================
+    // EXTRACT TEXT
     if (tool === "extract-text") {
         const data = await res.json();
         clearInterval(fakeLoading);
         bar.style.width = "100%";
+        percentText.innerText = "100%";
         alert("Extracted Text:\n\n" + data.text);
         return;
     }
 
-    // ============================
-    // Download File
-    // ============================
+    // ----------------------------
+    // Download output
+    // ----------------------------
     const blob = await res.blob();
     clearInterval(fakeLoading);
+
     bar.style.width = "100%";
+    percentText.innerText = "100%";
 
     const url = URL.createObjectURL(blob);
 
@@ -158,3 +244,5 @@ async function processFile() {
     dn.innerText = "Download File";
     dn.style.display = "block";
 }
+
+

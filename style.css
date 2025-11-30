@@ -1,22 +1,27 @@
 /* =====================================================
-   PREMIUM PDF TOOLS THEME — LIGHT + WARM DARK MODE
+     🐼 PANDA TOOLS THEME — CLEAN + BAMBOO STYLE
+===================================================== */
+
+/* =====================================================
+     🐼 PANDA TOOLS THEME — CLEAN BLACK & WHITE
 ===================================================== */
 
 :root {
-  --bg: #f7f3eb;
-  --panel: #ffffff;
-  --text: #4e453c;
-  --muted: #7a6f63;
+  --bg: #f5f5f5;             /* Panda white */
+  --panel: #ffffff;          /* Clean white card */
+  --text: #111;              /* Panda black */
+  --muted: #666;             /* Soft gray */
 
-  --accent-1: #c6a676;
-  --accent-2: #e3c39c;
+  --accent-1: #000000;       /* Black */
+  --accent-2: #2e2e2e;       /* Dark gray (replacing green) */
 
-  --gradient: linear-gradient(135deg, #e7d8c5, #c6a676);
+  --gradient: linear-gradient(135deg, #000000, #3a3a3a, #d9d9d9);
 
-  --shadow: 0 12px 30px rgba(0,0,0,0.08);
-  --soft-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  --shadow: 0 10px 30px rgba(0,0,0,0.12);
+  --soft-shadow: 0 6px 20px rgba(0,0,0,0.10);
 
   --transition: .25s ease;
+  --radius: 20px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +40,7 @@ body {
 }
 
 /* =============================
-   HERO
+   HERO — PANDA STYLE
 ============================= */
 
 .hero {
@@ -43,26 +48,28 @@ body {
   color: #fff;
   padding: 70px 20px;
   text-align: center;
-  border-bottom-left-radius: 45px;
-  border-bottom-right-radius: 45px;
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 50px;
   box-shadow: var(--shadow);
 }
 
 .hero-title {
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 
 .hero-sub { 
   opacity: .95;
   margin-top: 6px;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 /* Mobile hero fix */
 @media (min-width: 768px) {
-  .hero-title { font-size: 3rem; }
-  .hero-sub { font-size: 1.25rem; }
+  .hero-title { font-size: 3.2rem; }
+  .hero-sub { font-size: 1.3rem; }
 }
 
 /* =============================
@@ -73,100 +80,119 @@ body {
 
 .section-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.3rem;
   margin-bottom: 30px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .tools-grid {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(2, 1fr); /* Mobile */
+  grid-template-columns: repeat(2, 1fr);
 }
 
 @media(min-width: 600px) {
   .tools-grid {
-    grid-template-columns: repeat(3, 1fr); /* Tablet */
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media(min-width: 900px) {
   .tools-grid {
-    grid-template-columns: repeat(5, 1fr); /* Desktop */
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
 .tool-card {
   background: var(--panel);
-  padding: 24px;
-  border-radius: 18px;
+  padding: 26px;
+  border-radius: var(--radius);
   box-shadow: var(--soft-shadow);
   text-align: center;
   transition: var(--transition);
   cursor: pointer;
+  border: 2px solid transparent;
+
+  /* --- SAME SIZE FIX --- */
+  height: 165px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .tool-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 25px 45px rgba(0,0,0,0.12);
+  border: 2px solid var(--accent-2);
+  box-shadow: 0 25px 45px rgba(0,0,0,0.15);
 }
 
 .tool-icon {
-  font-size: 38px;
-  color: var(--accent-1);
-  margin-bottom: 10px;
+  font-size: 45px;
+  color: var(--accent-2);
+  margin-bottom: 12px;
 }
 
 .tool-title {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
 }
 
 /* =============================
-   UPLOAD PAGE
+   UPLOAD PAGE — PANDA CLEAN
 ============================= */
 
 .upload-box {
   background: var(--panel);
   padding: 25px;
   margin: 20px auto;
-  border-radius: 18px;
+  border-radius: var(--radius);
   box-shadow: var(--soft-shadow);
   max-width: 600px;
   text-align: center;
+  border: 2px solid #eee;
 }
 
-input[type="file"] {
+input[type="file"],
+input[type="password"],
+input[type="text"],
+select {
   padding: 14px;
-  border-radius: 10px;
-  background: #f9f5ee;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  background: #fafafa;
   width: 100%;
+  margin-top: 10px;
 }
 
+/* BUTTON */
 .btn {
-  padding: 12px 20px;
-  border-radius: 12px;
+  padding: 14px 20px;
+  border-radius: 14px;
   border: none;
   margin-top: 20px;
-  background: var(--accent-1);
+  background: var(--accent-2);
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.05rem;
   cursor: pointer;
   width: 100%;
+  transition: .25s ease;
 }
 
 .btn:hover {
   transform: translateY(-4px);
+  background: #45a148;
 }
 
 /* =============================
-   FOOTER — FIXED FOR MOBILE
+   FOOTER — PANDA BLACK & WHITE
 ============================= */
 
 .site-footer {
-  background: #efe6da;
+  background: #f0f0f0;              /* Light panda grey */
   padding: 50px 0;
   margin-top: 80px;
+  border-top: 2px solid #ccc;       /* Soft separation line */
 }
 
 .footer-grid {
@@ -187,8 +213,9 @@ input[type="file"] {
 .footer-card {
   background: var(--panel);
   padding: 20px;
-  border-radius: 18px;
+  border-radius: var(--radius);
   box-shadow: var(--soft-shadow);
+  border: 1px solid #ddd;           /* Light outline */
 }
 
 .socials { 
@@ -202,62 +229,150 @@ input[type="file"] {
   .socials { justify-content: flex-start; }
 }
 
-.social { 
-  padding: 10px; 
-  background: var(--panel); 
-  border-radius: 10px; 
+.social {
+  padding: 10px;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px solid #aaa;           /* Grey border */
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .social:hover {
-  background: var(--gradient);
+  background: #000;
   color: #fff;
+  border-color: #000;
+  transform: translateY(-3px);
 }
 
-.footer-nav a {
-  color: var(--muted);
-  margin-right: 12px;
-  text-decoration: none;
-}
+/* =============================
+   PROGRESS BAR + PERCENTAGE
+============================= */
 
-.copyright { 
-  text-align: center; 
-  margin-top: 30px;
-}
-/* Progress Bar */
 #progress-wrapper {
   width: 100%;
-  height: 14px;
-  background: #f0e6d8;
-  border-radius: 10px;
-  margin-top: 20px;
+  height: 18px;
+  background: #e2e2e2;
+  border-radius: 14px;
+  margin-top: 25px;
   overflow: hidden;
   display: none;
+  position: relative;
 }
 
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: var(--accent-1);
-  border-radius: 10px;
-  transition: width .3s ease;
+  background: var(--accent-2);
+  transition: width .25s ease;
 }
 
-/* Premium Download Button */
+#progress-percent {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+}
+
+/* =============================
+   DOWNLOAD BUTTON
+============================= */
+
 #download-btn {
   display: none;
   margin-top: 25px;
-  background: var(--gradient);
-  padding: 14px 22px;
+  background: var(--accent-2);
+  padding: 16px 26px;
   border-radius: 14px;
   color: #fff;
   text-decoration: none;
-  font-weight: 700;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  font-weight: 900;
+  font-size: 1.1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   transition: .25s ease;
   text-align: center;
 }
 
 #download-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.18);
+  background: #45a148;
+}
+/* =============================
+   FILE UPLOAD — PANDA STYLE
+============================= */
+
+.hidden-input {
+  display: none;
+}
+
+.upload-label {
+  display: block;
+  text-align: center;
+  background: var(--panel);
+  border: 2px dashed var(--accent-2);
+  padding: 18px;
+  width: 100%;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  transition: .25s ease;
+  margin-top: 10px;
+}
+
+.upload-label:hover {
+  background: #e8f7ea;
+  transform: translateY(-3px);
+}
+
+.upload-text {
+  pointer-events: none;
+}
+
+/* File List UI */
+.file-list {
+  margin-top: 15px;
+}
+
+.file-item {
+  background: #fafafa;
+  border: 2px solid #e0e0e0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-item svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--accent-2);
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  word-break: break-all;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  color: #d33;
+}
+
+.remove-btn:hover {
+  color: red;
 }
