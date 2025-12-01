@@ -299,7 +299,6 @@ if (closeViewer) {
    PROCESS FILE (Progress + Errors)
 ----------------------------------------------------- */
 async function processFile() {
-  // Make sure current visual order is applied to input
   applyReorderToInput();
 
   const params = new URLSearchParams(window.location.search);
@@ -329,11 +328,11 @@ async function processFile() {
   const downloadBtn = $id("download-btn");
   const msgBox = $id("status-msg");
 
-  if (wrapper) wrapper.style.display = "block";
-  if (bar) bar.style.width = "0%";
-  if (percent) percent.innerText = "0%";
-  if (downloadBtn) downloadBtn.style.display = "none";
-  if (msgBox) msgBox.style.display = "none";
+  wrapper.style.display = "block";
+  bar.style.width = "0%";
+  percent.innerText = "0%";
+  downloadBtn.style.display = "none";
+  msgBox.style.display = "none";
 
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
@@ -343,8 +342,8 @@ async function processFile() {
     xhr.upload.onprogress = e => {
       if (!e.lengthComputable) return;
       const p = Math.round((e.loaded / e.total) * 100);
-      if (bar) bar.style.width = p + "%";
-      if (percent) percent.innerText = p + "%";
+      bar.style.width = p + "%";
+      percent.innerText = p + "%";
     };
 
     xhr.onload = () => {
@@ -353,9 +352,10 @@ async function processFile() {
         return reject();
       }
 
-      if (bar) bar.style.width = "100%";
-      if (percent) percent.innerText = "100%";
-      showSuccess("File converted successfully!");
+      bar.style.width = "100%";
+      percent.innerText = "100%";
+
+      // ❌ SUCCESS MESSAGE REMOVED COMPLETELY
 
       const blob = xhr.response;
       const url = URL.createObjectURL(blob);
@@ -373,12 +373,10 @@ async function processFile() {
         "extract-text": "output.txt"
       };
 
-      if (downloadBtn) {
-        downloadBtn.href = url;
-        downloadBtn.download = names[tool] || "output.pdf";
-        downloadBtn.textContent = "⬇️ Download File";
-        downloadBtn.style.display = "flex";
-      }
+      downloadBtn.href = url;
+      downloadBtn.download = names[tool] || "output.pdf";
+      downloadBtn.textContent = "⬇️ Download File";
+      downloadBtn.style.display = "flex";
 
       resolve();
     };
@@ -403,13 +401,7 @@ function showError(msg) {
   msgBox.style.display = "block";
 }
 
-function showSuccess(msg) {
-  const msgBox = $id("status-msg");
-  if (!msgBox) return;
-  msgBox.className = "success-msg";
-  msgBox.innerText = "✅ " + msg;
-  msgBox.style.display = "block";
-}
+
 
 function readErrorMessage(blob) {
   if (!blob) {

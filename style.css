@@ -7,13 +7,13 @@
 ===================================================== */
 
 :root {
-  --bg: #f5f5f5;             /* Panda white */
-  --panel: #ffffff;          /* Clean white card */
-  --text: #111;              /* Panda black */
-  --muted: #666;             /* Soft gray */
+  --bg: #f5f5f5;             
+  --panel: #ffffff;          
+  --text: #111;              
+  --muted: #666;             
 
-  --accent-1: #000000;       /* Black */
-  --accent-2: #2e2e2e;       /* Dark gray (replacing green) */
+  --accent-1: #000000;       
+  --accent-2: #2e2e2e;       
 
   --gradient: linear-gradient(135deg, #000000, #3a3a3a);
 
@@ -24,7 +24,11 @@
   --radius: 20px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   background: var(--bg);
@@ -77,7 +81,9 @@ body {
    TOOLS GRID — FULL RESPONSIVE
 ============================= */
 
-.tools-section { margin: 60px 0; }
+.tools-section {
+  margin: 60px 0;
+}
 
 .section-title {
   text-align: center;
@@ -114,13 +120,11 @@ body {
   cursor: pointer;
   border: 2px solid transparent;
 
-  /* AUTO HEIGHT – content fits naturally */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
 }
-
 
 .tool-card:hover {
   transform: translateY(-6px);
@@ -158,7 +162,7 @@ input[type="file"],
 input[type="password"],
 input[type="text"],
 select {
-  padding: 14px;
+  padding: 10px 12px; 
   border-radius: 12px;
   border: 2px solid #e0e0e0;
   background: #fafafa;
@@ -166,16 +170,15 @@ select {
   margin-top: 10px;
 }
 
-/* BUTTON */
 .btn {
-  padding: 14px 20px;
-  border-radius: 14px;
+  padding: 10px 16px;
+  border-radius: 12px;
   border: none;
   margin-top: 20px;
   background: var(--accent-2);
   color: #fff;
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.rem;
   cursor: pointer;
   width: 100%;
   transition: .25s ease;
@@ -187,14 +190,14 @@ select {
 }
 
 /* =============================
-   FOOTER — PANDA BLACK & WHITE
+   FOOTER
 ============================= */
 
 .site-footer {
-  background: #f0f0f0;              /* Light panda grey */
+  background: #f0f0f0;
   padding: 50px 0;
   margin-top: 80px;
-  border-top: 2px solid #ccc;       /* Soft separation line */
+  border-top: 2px solid #ccc;
 }
 
 .footer-grid {
@@ -217,13 +220,13 @@ select {
   padding: 20px;
   border-radius: var(--radius);
   box-shadow: var(--soft-shadow);
-  border: 1px solid #ddd;           /* Light outline */
+  border: 1px solid #ddd;
 }
 
-.socials { 
-  display: flex; 
-  gap: 12px; 
-  margin-top: 12px; 
+.socials {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
   justify-content: center;
 }
 
@@ -235,7 +238,7 @@ select {
   padding: 10px;
   background: #fff;
   border-radius: 12px;
-  border: 2px solid #aaa;           /* Grey border */
+  border: 2px solid #aaa;
   transition: var(--transition);
   display: flex;
   align-items: center;
@@ -250,12 +253,12 @@ select {
 }
 
 /* =============================
-   PROGRESS BAR + PERCENTAGE
+   PROGRESS BAR
 ============================= */
 
 #progress-wrapper {
   width: 100%;
-  height: 28px;                     /* Increased thickness */
+  height: 28px;
   background: #d0d0d0;
   border-radius: 14px;
   margin-top: 25px;
@@ -267,22 +270,21 @@ select {
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: var(--accent-2);      /* dark gray */
+  background: var(--accent-2);
   transition: width .25s ease;
 }
 
 #progress-percent {
   position: absolute;
-  inset: 0; /* stretch to entire box */
+  inset: 0;
   display: flex;
-  align-items: center;  /* vertical centering */
-  justify-content: center; /* horizontal centering */
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
   font-weight: 700;
   color: #fff;
   pointer-events: none;
 }
-
 
 /* =============================
    DOWNLOAD BUTTON
@@ -292,16 +294,14 @@ select {
   display: none;
   margin-top: 25px;
   background: var(--accent-2);
-  padding: 18px 26px;
-  border-radius: 14px;
+  padding: 10px 16px;     /* slimmer */
+  border-radius: 12px;
   color: #fff;
   text-decoration: none;
   font-weight: 900;
-  font-size: 1.15rem;
+  font-size: 1rem;
   width: 100%;
-  min-height: 55px;
-
-  /* center text */
+  min-height: 42px;     ;
   display: none;
   align-items: center;
   justify-content: center;
@@ -310,17 +310,13 @@ select {
   transition: .25s ease;
 }
 
-
-
 #download-btn:hover {
-  background: #1a1a1a !important;
-  color: #fff !important;
+  background: #000 !important;
   transform: translateY(-4px);
 }
 
-
 /* =============================
-   FILE UPLOAD — PANDA STYLE
+   FILE LIST UI
 ============================= */
 
 .hidden-input {
@@ -332,7 +328,7 @@ select {
   text-align: center;
   background: var(--panel);
   border: 2px dashed var(--accent-2);
-  padding: 18px;
+  padding: 10px 14px; 
   width: 100%;
   border-radius: 16px;
   cursor: pointer;
@@ -348,11 +344,6 @@ select {
   transform: translateY(-3px);
 }
 
-.upload-text {
-  pointer-events: none;
-}
-
-/* File List UI */
 .file-list {
   margin-top: 15px;
 }
@@ -373,7 +364,6 @@ select {
   width: 20px;
   height: 20px;
   fill: var(--accent-2);
-  flex-shrink: 0;
 }
 
 .file-name {
@@ -393,83 +383,91 @@ select {
 .remove-btn:hover {
   color: red;
 }
-/* ------- MOBILE HERO HEIGHT FIX ------- */
+
+/* =============================
+   MOBILE OPTIMIZED
+============================= */
+
 @media (max-width: 480px) {
   .hero {
-    padding: 35px 20px;   /* Reduced height */
+    padding: 35px 20px;
   }
-
   .hero-title {
-    font-size: 2rem;      /* Smaller title */
+    font-size: 2rem;
+  }
+  .hero-sub {
+    font-size: 0.9rem;
   }
 
-  .hero-sub {
-    font-size: 0.9rem;    /* Smaller subtitle */
-  }
-}
-/* ------- MOBILE TOOL CARD OPTIMIZATION ------- */
-@media (max-width: 480px) {
-  
-  /* Make tool cards slightly smaller */
   .tool-card {
     padding: 18px;
-    border-radius: 14px;
   }
-
-  /* Smaller icons */
   .tool-icon {
-    font-size: 32px;      /* was 45px */
+    font-size: 32px;
     margin-bottom: 8px;
   }
-
-  /* Smaller tool title */
   .tool-title {
-    font-size: 0.95rem;   /* was 1.15rem */
-    font-weight: 700;
+    font-size: 0.95rem;
   }
-
-  /* Reduce grid gap */
   .tools-grid {
     gap: 14px;
   }
 }
-/* SUCCESS MESSAGE */
+
+/* SUCCESS / ERROR MSG */
 .success-msg {
   display: block !important;
   background: #d1f7d6;
   color: #0c7d20;
   border: 2px solid #8ce89b;
 }
-
-/* ERROR MESSAGE */
 .error-msg {
   display: block !important;
   background: #ffd9d9;
   color: #b30000;
   border: 2px solid #ff8a8a;
 }
-/* VIEW BUTTON */
+
+/* =============================
+   SMALL VIEW BUTTON (UPDATED)
+============================= */
+
+/* =============================
+   VIEW FILE BUTTON — IMPROVED UI
+============================= */
+
 #view-btn {
   display: none;
-  margin-top: 18px;
-  background: #2e2e2e;
-  padding: 14px 22px;
-  border-radius: 14px;
+  margin: 14px auto 0 auto;      /* CENTER + CLEAN SPACING */
+  background: #1c1c1c;           /* PREMIUM DARK */
+  padding: 8px 18px;             /* Better size */
+  border-radius: 10px;
   color: #fff !important;
-  font-weight: 800;
-  font-size: 1.05rem;
+  font-weight: 700;
+  font-size: 0.9rem;
   text-align: center;
-  width: 100%;
-  text-decoration: none;
+
+  width: fit-content;            /* Perfect button width */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;                      /* Space for icon if added later */
+  cursor: pointer;
   transition: .25s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
 #view-btn:hover {
   background: #000;
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.25);
 }
 
-/* VIEWER POPUP */
+/* =============================
+   VIEWER POPUP
+============================= */
+
 #pdf-viewer-popup {
   display: none;
   position: fixed;
@@ -489,6 +487,7 @@ select {
   height: 90%;
   border-radius: 14px;
   position: relative;
+  overflow-y: auto;      /* IMPORTANT FOR MULTIPLE IMAGES */
   box-shadow: 0 25px 50px rgba(0,0,0,0.3);
 }
 
@@ -496,9 +495,9 @@ select {
   width: 100%;
   height: 100%;
   border: none;
-  border-radius: 14px;
 }
 
+/* Viewer close */
 #close-viewer {
   position: absolute;
   top: 12px;
@@ -511,31 +510,38 @@ select {
   border-radius: 8px;
   cursor: pointer;
 }
-#img-gallery img {
-  width: 100%;
-  border-radius: 14px;
-  margin-bottom: 18px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  cursor: grab;
+
+/* INFO BOX (missing earlier) */
+#viewer-info {
+  padding: 20px;
+  font-size: 14px;
+  color: #444;
 }
 
-#img-gallery img:active {
-  cursor: grabbing;
+/* =============================
+   IMAGE GALLERY (REORDER)
+============================= */
+
+#img-gallery {
+  width: 100%;
+  padding: 20px;
 }
+
 .img-item {
   margin-bottom: 20px;
   border-radius: 14px;
   overflow: hidden;
-  cursor: grab;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-}
 
-.img-item img {
-  width: 100%;
-  display: block;
+  cursor: grab;       /* TOUCH REORDER SUPPORT */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
 .img-item:active {
   cursor: grabbing;
 }
 
+.img-item img {
+  width: 100%;
+  display: block;
+  border-radius: 14px;
+}
