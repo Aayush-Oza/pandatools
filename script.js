@@ -1,60 +1,49 @@
 const API_BASE = "https://pdf-tools-backend-1.onrender.com";
 
-// -----------------------------------------------------
-// Open Tool Page
-// -----------------------------------------------------
+/* -----------------------------------------------------
+   Open Tool Page
+----------------------------------------------------- */
 function openTool(tool) {
     window.location.href = `tool.html?tool=${tool}`;
 }
 
-// -----------------------------------------------------
-// Get Tool Name From URL
-// -----------------------------------------------------
+/* -----------------------------------------------------
+   On Page Load → Set Tool Title & Configure Inputs
+----------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
 
     const params = new URLSearchParams(window.location.search);
     const tool = params.get("tool");
 
-    // Set tool title
     if (tool && document.getElementById("toolName")) {
         document.getElementById("toolName").innerText =
             tool.replace(/-/g, " ").toUpperCase();
     }
 
-    // File input exists only on tool.html
     const fileInput = document.getElementById("fileInput");
-    if (fileInput) {
+    if (!fileInput) return;
 
-        // Show file list on change
-        fileInput.addEventListener("change", updateFileList);
+    fileInput.addEventListener("change", updateFileList);
 
-        // Configure special inputs based on tool
-        if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
-            fileInput.multiple = true;
-        }
+    if (tool === "merge-pdf" || tool === "jpg-to-pdf")
+        fileInput.multiple = true;
 
-        if (tool === "protect-pdf" || tool === "unlock-pdf") {
-            document.getElementById("passwordInput").style.display = "block";
-        }
+    if (tool === "protect-pdf" || tool === "unlock-pdf")
+        document.getElementById("passwordInput").style.display = "block";
 
-        if (tool === "split-pdf") {
-            document.getElementById("rangeInput").style.display = "block";
-        }
+    if (tool === "split-pdf")
+        document.getElementById("rangeInput").style.display = "block";
 
-        if (tool === "rotate-pdf") {
-            document.getElementById("angleInput").style.display = "block";
-        }
-    }
+    if (tool === "rotate-pdf")
+        document.getElementById("angleInput").style.display = "block";
 });
 
-// -----------------------------------------------------
-// File List UI
-// -----------------------------------------------------
+/* -----------------------------------------------------
+   FILE LIST UI
+----------------------------------------------------- */
 function updateFileList() {
     const input = document.getElementById("fileInput");
     const list = document.getElementById("fileList");
-
-    if (!input || !list) return;
 
     list.innerHTML = "";
 
@@ -76,7 +65,6 @@ function updateFileList() {
             </svg>
 
             <span class="file-name">${file.name}</span>
-
             <button class="remove-btn" onclick="removeFile(${index})">×</button>
         `;
 
@@ -86,8 +74,6 @@ function updateFileList() {
 
 function removeFile(index) {
     const input = document.getElementById("fileInput");
-    if (!input) return;
-
     const dt = new DataTransfer();
     let files = [...input.files];
 
@@ -99,52 +85,65 @@ function removeFile(index) {
     updateFileList();
 }
 
-// -----------------------------------------------------
-// Process File — with Progress Loader
-// -----------------------------------------------------
+/* -----------------------------------------------------
+   PROCESS FILE — WITH REAL ERROR MESSAGE + PROGRESS
+----------------------------------------------------- */
 async function processFile() {
     const params = new URLSearchParams(window.location.search);
     const tool = params.get("tool");
 
     let fd = new FormData();
 
-    // MULTIPLE FILE TOOLS
+    /* MULTIPLE FILE TOOLS */
     if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
         const files = document.getElementById("fileInput").files;
-        if (!files.length) return alert("Select at least one file");
+
+        if (!files.length)
+            return showError("Please select at least one file.");
+
         if (tool === "merge-pdf" && files.length < 2)
-            return alert("Select at least 2 PDFs");
+            return showError("Merging requires at least 2 PDFs.");
+
         for (let f of files) fd.append("files", f);
     } else {
         const file = document.getElementById("fileInput").files[0];
-        if (!file) return alert("Select a file");
+        if (!file) return showError("Please select a file.");
         fd.append("file", file);
     }
 
-    // OTHER TOOL FIELDS
-    if (tool === "split-pdf") fd.append("ranges", document.getElementById("rangeInput").value);
-    if (tool === "rotate-pdf") fd.append("angle", document.getElementById("angleInput").value);
-    if (tool === "protect-pdf" || tool === "unlock-pdf")
-        fd.append("password", document.getElementById("passwordInput").value);
+    /* OTHER TOOL INPUTS */
+    if (tool === "split-pdf") {
+        fd.append("ranges", document.getElementById("rangeInput").value);
+    }
 
-    // PROGRESS BAR UI
+    if (tool === "rotate-pdf") {
+        fd.append("angle", document.getElementById("angleInput").value);
+    }
+
+    if (tool === "protect-pdf" || tool === "unlock-pdf") {
+        fd.append("password", document.getElementById("passwordInput").value);
+    }
+
+    /* UI ELEMENTS */
     const wrapper = document.getElementById("progress-wrapper");
     const bar = document.getElementById("progress-bar");
     const percent = document.getElementById("progress-percent");
     const downloadBtn = document.getElementById("download-btn");
+    const msgBox = document.getElementById("status-msg");
+
+    msgBox.style.display = "none";
+    downloadBtn.style.display = "none";
 
     wrapper.style.display = "block";
     bar.style.width = "0%";
     percent.innerText = "0%";
-    downloadBtn.style.display = "none";
 
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
-
         xhr.open("POST", `${API_BASE}/${tool}`);
         xhr.responseType = "blob";
 
-        // Fast REAL upload progress
+        /* PROGRESS */
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
                 let p = Math.round((e.loaded / e.total) * 100);
@@ -153,15 +152,17 @@ async function processFile() {
             }
         };
 
-        xhr.onload = function () {
+        /* RESPONSE */
+        xhr.onload = () => {
+
             if (xhr.status !== 200) {
-                alert("Error: " + xhr.status);
-                return reject(xhr.status);
+                readErrorMessage(xhr.response);
+                return reject();
             }
 
-            // Complete progress
             bar.style.width = "100%";
             percent.innerText = "100%";
+            showSuccess("File converted successfully!");
 
             let blob = xhr.response;
             let url = URL.createObjectURL(blob);
@@ -181,16 +182,66 @@ async function processFile() {
 
             downloadBtn.href = url;
             downloadBtn.download = fileNames[tool] || "output.pdf";
-            downloadBtn.style.display = "block";
+            downloadBtn.textContent = "⬇️ Download File";
+            downloadBtn.style.display = "flex";
 
             resolve();
         };
 
         xhr.onerror = () => {
-            alert("Network error");
+            showError("Network error. Please try again.");
             reject();
         };
 
         xhr.send(fd);
     });
+}
+
+/* -----------------------------------------------------
+   SHOW ERROR MESSAGE (NO ALERT)
+----------------------------------------------------- */
+function showError(msg) {
+    const msgBox = document.getElementById("status-msg");
+    msgBox.className = "error-msg";
+    msgBox.innerText = "⚠️ " + msg;
+    msgBox.style.display = "block";
+}
+
+/* -----------------------------------------------------
+   SHOW SUCCESS MESSAGE
+----------------------------------------------------- */
+function showSuccess(msg) {
+    const msgBox = document.getElementById("status-msg");
+    msgBox.className = "success-msg";
+    msgBox.innerText = "✅ " + msg;
+    msgBox.style.display = "block";
+}
+
+/* -----------------------------------------------------
+   PARSE BACKEND ERROR MESSAGE (PDF LOCK, ETC)
+----------------------------------------------------- */
+function readErrorMessage(blob) {
+    let reader = new FileReader();
+    reader.onload = () => {
+        let text = reader.result || "";
+
+        // Try extracting text inside <p>…</p>
+        let match = text.match(/<p>(.*?)<\/p>/i);
+
+        if (match && match[1]) {
+            showError(match[1]);   // Clean message
+            return;
+        }
+
+        // Try finding any readable sentence
+        let fallback = text.replace(/<[^>]+>/g, "").trim();
+
+        if (fallback.length > 0) {
+            showError(fallback);
+        } else {
+            showError("Something went wrong.");
+        }
+    };
+
+    reader.readAsText(blob);
 }
