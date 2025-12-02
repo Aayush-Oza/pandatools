@@ -64,6 +64,7 @@ function updateFileList() {
   const input = $id("fileInput");
   const list = $id("fileList");
   const viewBtn = $id("view-btn");
+  const reorderHint = $id("reorder-hint");   // <-- NEW
 
   if (!input || !list) return;
 
@@ -72,6 +73,7 @@ function updateFileList() {
 
   if (!input.files || !input.files.length) {
     list.innerHTML = "<p style='color:#777;'>No files selected</p>";
+    if (reorderHint) reorderHint.style.display = "none";   // hide when empty
     return;
   }
 
@@ -84,22 +86,39 @@ function updateFileList() {
 
     const sizeKB = Math.round(file.size / 1024);
     item.innerHTML = `
-  <svg viewBox="0 0 24 24" width="20" height="20">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 
-    2 0 0 0 2 2h12a2 2 0 0 
-    0 2-2V8l-6-6zm1 7h5.5L15 
-    3.5V9z"/>
-  </svg>
+      <svg viewBox="0 0 24 24" width="20" height="20">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 
+        2 0 0 0 2 2h12a2 2 0 0 
+        0 2-2V8l-6-6zm1 7h5.5L15 
+        3.5V9z"/>
+      </svg>
 
-  <span class="file-name">${file.name}</span>
-  <span class="file-meta">${sizeKB} KB</span>
+      <span class="file-name">${file.name}</span>
+      <span class="file-meta">${sizeKB} KB</span>
 
-  <button class="remove-btn" onclick="removeFile(${index})">×</button>
-`;
-
+      <button class="remove-btn" onclick="removeFile(${index})">×</button>
+    `;
 
     list.appendChild(item);
   });
+
+  /* ------------------------------------------
+        SHOW REORDER HINT (ONLY FOR IMAGES)
+  -------------------------------------------*/
+  if (reorderHint) {
+    const files = [...input.files];
+    const allImages = files.every(f =>
+    f.type.startsWith("image/") ||
+    /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name)
+);
+
+
+    if (files.length > 1 && allImages) {
+      reorderHint.style.display = "block";   // show hint
+    } else {
+      reorderHint.style.display = "none";    // hide otherwise
+    }
+  }
 }
 
 function removeFile(index) {
