@@ -1,93 +1,83 @@
-/* script.js
-   Single combined script for index.html + tool.html
-   - File list UI
-   - Viewer popup (PDF / single image / gallery)
-   - Reorder (drag + touch), reorder-mode toggle to avoid accidental reorder while scrolling
-   - AJAX upload with progress
-   - Safe: silently no-op on pages missing elements
+/* tool.js
+   Improved file viewer + reorder logic for Panda Tools
+   Option A behavior: preview only for PDFs/images; other files show "preview not supported" message.
 */
 
 const API_BASE = "https://pdf-tools-backend-1.onrender.com";
 
-/* ---------- Lightweight DOM helpers ---------- */
-function $id(id) { return document.getElementById(id); }
-function qs(sel, ctx = document) { return ctx.querySelector(sel); }
-function qsa(sel, ctx = document) { return Array.from(ctx.querySelectorAll(sel)); }
-
-/* ---------- App state ---------- */
-let galleryOrder = [];     // File objects in order for images
-let originalFiles = [];    // snapshot when viewer opened
-let reorderMode = false;   // whether reorder-mode is enabled in popup
-let openObjectURLs = [];   // track created object URLs to revoke
-
-/* ---------- Cleanup helper for object URLs ---------- */
-function createObjectURL(file) {
-  const url = URL.createObjectURL(file);
-  openObjectURLs.push(url);
-  return url;
-}
-function revokeAllObjectURLs() {
-  openObjectURLs.forEach(u => URL.revokeObjectURL(u));
-  openObjectURLs = [];
+/* -----------------------------------------------------
+   Helper: safe DOM getter
+----------------------------------------------------- */
+function $id(id) {
+  return document.getElementById(id);
 }
 
-/* ---------- DOMContentLoaded setup ---------- */
+/* -----------------------------------------------------
+   Open Tool Page
+----------------------------------------------------- */
+function openTool(tool) {
+  window.location.href = `tool.html?tool=${tool}`;
+}
+
+/* -----------------------------------------------------
+   On Page Load → Set Tool Title & Configure Inputs
+----------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
-  // Dynamic page title (tool param)
   const params = new URLSearchParams(window.location.search);
   const tool = params.get("tool");
-  if (tool && $id("toolName")) $id("toolName").innerText = tool.replace(/-/g, " ").toUpperCase();
 
-  // Wire input change
+  if (tool && $id("toolName")) {
+    $id("toolName").innerText = tool.replace(/-/g, " ").toUpperCase();
+  }
+
   const fileInput = $id("fileInput");
-  if (fileInput) fileInput.addEventListener("change", updateFileList);
+  if (!fileInput) return;
 
-  // Wire view button
+  fileInput.addEventListener("change", updateFileList);
+
+  if (tool === "merge-pdf" || tool === "jpg-to-pdf") fileInput.multiple = true;
+
+  if (tool === "protect-pdf" || tool === "unlock-pdf") {
+    const pw = $id("passwordInput");
+    if (pw) pw.style.display = "block";
+  }
+
+  if (tool === "split-pdf") {
+    const r = $id("rangeInput");
+    if (r) r.style.display = "block";
+  }
+
+  if (tool === "rotate-pdf") {
+    const a = $id("angleInput");
+    if (a) a.style.display = "block";
+  }
+
+  // Ensure view button exists and is wired
   const viewBtn = $id("view-btn");
   if (viewBtn) viewBtn.addEventListener("click", openViewer);
-
-  // Wire process button (single global handler attached in HTML: onclick="processFile()")
-  // Wire close viewer
-  const closeViewer = $id("close-viewer");
-  if (closeViewer) {
-    closeViewer.addEventListener("click", closeViewerPopup);
-  }
-
-  // Keyboard: Escape closes viewer
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeViewerPopup();
-  });
-
-  // Reorder toggle button (exists inside viewer markup)
-  const reorderToggle = $id("reorder-toggle");
-  if (reorderToggle) {
-    reorderToggle.addEventListener("click", () => {
-      reorderMode = !reorderMode;
-      reorderToggle.setAttribute("aria-pressed", String(reorderMode));
-      updateReorderUI();
-    });
-  }
 });
 
-/* ---------- Update file list UI ---------- */
+/* -----------------------------------------------------
+   FILE LIST UI + VIEW BUTTON
+----------------------------------------------------- */
 function updateFileList() {
   const input = $id("fileInput");
   const list = $id("fileList");
   const viewBtn = $id("view-btn");
-  const reorderHint = $id("reorder-hint");
+  const reorderHint = $id("reorder-hint");   // <-- NEW
 
   if (!input || !list) return;
 
   list.innerHTML = "";
   if (viewBtn) viewBtn.style.display = "none";
-  if (reorderHint) reorderHint.style.display = "none";
 
   if (!input.files || !input.files.length) {
-    list.innerHTML = "<p style='color:#777;margin:6px 0;'>No files selected</p>";
+    list.innerHTML = "<p style='color:#777;'>No files selected</p>";
+    if (reorderHint) reorderHint.style.display = "none";   // hide when empty
     return;
   }
 
-  // Show view button
+  // Show view button for ANY selection (Option A)
   if (viewBtn) viewBtn.style.display = "block";
 
   [...input.files].forEach((file, index) => {
@@ -96,361 +86,303 @@ function updateFileList() {
 
     const sizeKB = Math.round(file.size / 1024);
     item.innerHTML = `
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 
         2 0 0 0 2 2h12a2 2 0 0 
         0 2-2V8l-6-6zm1 7h5.5L15 
         3.5V9z"/>
       </svg>
-      <span class="file-name" aria-label="${file.name}">${file.name}</span>
-      <span class="file-meta" aria-hidden="true">${sizeKB} KB</span>
-      <button class="remove-btn" data-index="${index}" title="Remove file">×</button>
+
+      <span class="file-name">${file.name}</span>
+      <span class="file-meta">${sizeKB} KB</span>
+
+      <button class="remove-btn" onclick="removeFile(${index})">×</button>
     `;
+
     list.appendChild(item);
   });
 
-  // Wire remove buttons (event delegation would also work, but this is simple)
-  qsa(".remove-btn", list).forEach(btn => {
-    btn.addEventListener("click", (ev) => {
-      const idx = parseInt(ev.currentTarget.dataset.index, 10);
-      removeFile(idx);
-    });
-  });
-
-  // Show reorder hint only when >1 images
+  /* ------------------------------------------
+        SHOW REORDER HINT (ONLY FOR IMAGES)
+  -------------------------------------------*/
   if (reorderHint) {
     const files = [...input.files];
-    const allImages = files.length > 1 && files.every(f => {
-      return (f.type && f.type.startsWith("image/")) || /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name);
-    });
-    if (allImages) reorderHint.style.display = "block";
-    else reorderHint.style.display = "none";
+    const allImages = files.every(f =>
+    f.type.startsWith("image/") ||
+    /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name)
+);
+
+
+    if (files.length > 1 && allImages) {
+      reorderHint.style.display = "block";   // show hint
+    } else {
+      reorderHint.style.display = "none";    // hide otherwise
+    }
   }
 }
 
-/* ---------- Remove file from input ---------- */
 function removeFile(index) {
   const input = $id("fileInput");
   if (!input || !input.files) return;
 
   const dt = new DataTransfer();
   let files = [...input.files];
-  if (index < 0 || index >= files.length) return;
+
   files.splice(index, 1);
   files.forEach(f => dt.items.add(f));
-  input.files = dt.files;
 
-  // update UI
+  input.files = dt.files;
+  // refresh UI
   updateFileList();
 }
 
-/* ---------- Open viewer (PDF / image(s) / unsupported) ---------- */
+/* -----------------------------------------------------
+   VIEWER + DRAG REORDER SYSTEM
+----------------------------------------------------- */
+let galleryOrder = [];      // array of File objects in current order (for images)
+let originalFiles = [];     // snapshot of files when opening viewer
+
+// Open viewer (wired to view-btn)
 function openViewer() {
   const input = $id("fileInput");
   if (!input || !input.files || !input.files.length) return;
 
-  // clean previously created URLs
-  revokeAllObjectURLs();
-  galleryOrder = [];
   originalFiles = [...input.files];
 
+  // Get popup elements (make sure HTML ids exist)
   const popup = $id("pdf-viewer-popup");
-  const frame = $id("pdf-frame");
-  const img = $id("img-preview");
-  const gallery = $id("img-gallery");
-  const infoBox = $id("viewer-info");
-  const reorderToggle = $id("reorder-toggle");
-  const reorderStatus = $id("reorder-status");
+  const frame = $id("pdf-frame");       // <iframe> or <embed> for pdf
+  const img = $id("img-preview");       // <img> for single image
+  const gallery = $id("img-gallery");   // container for multiple images
+  const infoBox = $id("viewer-info");   // area to show messages for unsupported files
 
   if (!popup) return;
   popup.style.display = "flex";
-  popup.setAttribute("aria-hidden", "false");
 
-  // reset internal displays
+  // Reset inner states
   if (frame) frame.style.display = "none";
   if (img) { img.style.display = "none"; img.src = ""; }
   if (gallery) { gallery.style.display = "none"; gallery.innerHTML = ""; }
   if (infoBox) { infoBox.style.display = "none"; infoBox.innerHTML = ""; }
-  if (reorderToggle) { reorderToggle.style.display = "none"; reorderToggle.setAttribute("aria-pressed", "false"); }
-  if (reorderStatus) reorderStatus.style.display = "none";
-  reorderMode = false;
 
   const first = originalFiles[0];
-  if (!first) return;
 
-  // PDF logic
-  if (first.type === "application/pdf") {
-    const blobURL = createObjectURL(first);
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // PDF preview
+if (first.type === "application/pdf") {
+  const blobURL = URL.createObjectURL(first);
 
-    if (isMobile) {
-      // Mobile: open PDF in new tab for best native rendering
-      window.open(blobURL, "_blank");
-      // keep popup closed in mobile for PDF use-case
-      popup.style.display = "none";
-      return;
-    }
+  // detect mobile (Android / iPhone / iPad)
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    if (frame) {
-      frame.style.display = "block";
-      try { frame.src = blobURL; } catch (err) {
-        console.error("PDF preview error:", err);
-        if (infoBox) {
-          infoBox.style.display = "block";
-          infoBox.innerHTML = `<p>Could not preview PDF. Selected: <strong>${first.name}</strong></p>`;
-        }
-      }
-    }
+  if (isMobile) {
+    // Mobile → always open in new tab (safe)
+    window.open(blobURL, "_blank");
     return;
   }
 
-  // Images: single vs multiple
-  const allImages = originalFiles.every(f => (f.type && f.type.startsWith("image/")) || /\.(png|jpg|jpeg|webp|gif)$/i.test(f.name));
+  // Desktop → show in iframe popup (your existing behavior)
+  if (frame) {
+    frame.style.display = "block";
+    try {
+      frame.src = blobURL;
+    } catch (err) {
+      console.error("PDF preview error:", err);
+      if (infoBox) {
+        infoBox.style.display = "block";
+        infoBox.innerHTML = `<p>Could not preview PDF. Selected: <strong>${first.name}</strong></p>`;
+      }
+    }
+  }
+
+  return;
+}
+
+
+  // MULTIPLE IMAGES -> draggable gallery
+  const allImages = originalFiles.every(f => f.type.startsWith("image/"));
   if (originalFiles.length > 1 && allImages) {
     if (!gallery) return;
     gallery.style.display = "flex";
-    gallery.style.flexDirection = "column";
+gallery.style.flexDirection = "column";
+gallery.style.alignItems = "center";
 
-    // Setup gallery order and render
-    galleryOrder = originalFiles.map(f => f);
+    galleryOrder = [...originalFiles];
     renderGallery(gallery);
-
-    // Show reorder toggle & status
-    if ($id("reorder-toggle")) {
-      $id("reorder-toggle").style.display = "inline-flex";
-      $id("reorder-status").style.display = "inline-block";
-      $id("reorder-status").innerText = "Reorder OFF — toggle to enable";
-      $id("reorder-toggle").setAttribute("aria-pressed", "false");
-    }
     return;
   }
 
-  // Single image
-  if (first.type && first.type.startsWith("image/")) {
+  // SINGLE IMAGE
+  if (first.type.startsWith("image/")) {
     if (img) {
-      img.src = createObjectURL(first);
+      img.src = URL.createObjectURL(first);
       img.style.display = "block";
     }
     return;
   }
 
-  // Unsupported preview
+  // Unsupported preview (DOCX/PPT/others) — Option A behavior
   if (infoBox) {
     infoBox.style.display = "block";
     infoBox.innerHTML = `
       <div style="padding:12px;">
         <p><strong>Preview not supported for this file type.</strong></p>
-        <p>Selected file: <em>${first.name}</em></p>
+        <p>Selected file: <em>${first.name}</em> (${first.type || "unknown"})</p>
         <p>The file is ready for processing — you can proceed with the tool.</p>
       </div>
     `;
   }
 }
 
-/* ---------- Close viewer ---------- */
-function closeViewerPopup() {
-  const popup = $id("pdf-viewer-popup");
-  if (!popup) return;
-  popup.style.display = "none";
-  popup.setAttribute("aria-hidden", "true");
-
-  // clear gallery and revoke URLs
-  const gallery = $id("img-gallery");
-  const frame = $id("pdf-frame");
-  const img = $id("img-preview");
-
-  if (gallery) gallery.innerHTML = "";
-  if (frame) frame.src = "";
-  if (img) img.src = "";
-  revokeAllObjectURLs();
-
-  // reset reorder mode
-  reorderMode = false;
-  const reorderToggle = $id("reorder-toggle");
-  if (reorderToggle) reorderToggle.setAttribute("aria-pressed", "false");
-  updateReorderUI();
-}
-
-/* ---------- Render gallery (no page reload) ---------- */
+/* Render draggable gallery */
 function renderGallery(container) {
-  // container is #img-gallery
-  if (!container) return;
   container.innerHTML = "";
+  container.style.display = "block";       // ensure no grid layout
 
   galleryOrder.forEach((file, index) => {
-    const row = document.createElement("div");
-    row.className = "img-item";
-    row.dataset.index = index;
-    row.setAttribute("role", "listitem");
-    row.style.margin = "0";
-    row.style.padding = "0";
+    const div = document.createElement("div");
+    div.className = "img-item";
+    div.draggable = true;
+    div.dataset.index = index;
 
-    // accessible label
-    row.setAttribute("aria-label", `Image ${index + 1}: ${file.name}`);
+    div.style.margin = "15px 0";           // space between rows
+    div.style.display = "block";           // full width row
 
     const img = document.createElement("img");
-    img.src = createObjectURL(file);
-    img.alt = file.name || `image-${index + 1}`;
-    img.style.display = "block";
-    img.draggable = false;
+    img.src = URL.createObjectURL(file);
+    img.style.width = "100%";              // full width
+    img.style.height = "auto";
+    img.style.maxHeight = "350px";         // limit height
+    img.style.objectFit = "contain";
+    img.style.borderRadius = "10px";
 
-    row.appendChild(img);
-    container.appendChild(row);
+    div.appendChild(img);
+    container.appendChild(div);
   });
 
-  // initialize drag/touch only when reorderMode true (we still attach enabling handlers so toggle flips behavior)
-  initDragHandlers(container);
-  updateReorderUI();
+  enableDrag(container);
 }
 
-/* ---------- Update reorder UI affordances ---------- */
-function updateReorderUI() {
-  const popupInner = document.querySelector(".popup-inner");
-  const reorderStatus = $id("reorder-status");
-  const reorderToggle = $id("reorder-toggle");
 
-  if (!popupInner) return;
+function enableDrag(container) {
+  let dragIndex = null;
 
-  if (reorderMode) {
-    popupInner.classList.add("reorder-mode");
-    if (reorderStatus) reorderStatus.innerText = "Drag to reorder (Reorder ON)";
-    if (reorderToggle) reorderToggle.setAttribute("aria-pressed", "true");
-  } else {
-    popupInner.classList.remove("reorder-mode");
-    if (reorderStatus) reorderStatus.innerText = "Reorder OFF — toggle to enable";
-    if (reorderToggle) reorderToggle.setAttribute("aria-pressed", "false");
-  }
-}
+  container.querySelectorAll(".img-item").forEach(item => {
 
-/* ---------- Init drag & touch handlers (attached per render) ---------- */
-function initDragHandlers(container) {
-  if (!container) return;
-
-  // Remove any previous listeners by replacing nodes (safe simple approach)
-  // We'll re-create handlers by cloning the container (lightweight).
-  // But to keep references stable we instead add listeners to each .img-item but guard with reorderMode.
-
-  qsa(".img-item", container).forEach(item => {
-    // avoid adding duplicate listeners by using a flag
-    if (item._dragBound) return;
-    item._dragBound = true;
-
-    // DESKTOP: standard HTML5 drag
-    item.draggable = true;
-    item.addEventListener("dragstart", (e) => {
-      if (!reorderMode) { e.preventDefault(); return; }
-      item.classList.add("dragging");
+    /* ---------------- DESKTOP DRAG ---------------- */
+    item.addEventListener("dragstart", e => {
+      dragIndex = parseInt(item.dataset.index, 10);
       e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", item.dataset.index);
     });
 
-    item.addEventListener("dragend", () => item.classList.remove("dragging"));
-
-    item.addEventListener("dragover", (e) => {
-      if (!reorderMode) return;
+    item.addEventListener("dragover", e => {
       e.preventDefault();
-      item.classList.add("drag-over");
+      item.style.opacity = "0.6";
     });
+
     item.addEventListener("dragleave", () => {
-      item.classList.remove("drag-over");
+      item.style.opacity = "1";
     });
 
-    item.addEventListener("drop", (e) => {
-      if (!reorderMode) return;
+    item.addEventListener("drop", e => {
       e.preventDefault();
-      item.classList.remove("drag-over");
-      const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-      const toIndex = parseInt(item.dataset.index, 10);
-      if (!isNaN(fromIndex) && !isNaN(toIndex) && fromIndex !== toIndex) {
-        swapImages(fromIndex, toIndex);
-      }
+      item.style.opacity = "1";
+
+      const dropIndex = parseInt(item.dataset.index, 10);
+      if (isNaN(dragIndex) || isNaN(dropIndex)) return;
+
+      swapImages(dragIndex, dropIndex, container);
     });
 
-    // MOBILE TOUCH: only active when reorderMode === true
-    // We'll track a small threshold before considering it a drag so normal scroll isn't prevented.
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let touchMoved = false;
-    const THRESH = 12;
+    /* ---------------- MOBILE TOUCH ---------------- */
+    item.addEventListener("touchstart", e => {
+      dragIndex = parseInt(item.dataset.index, 10);
+    });
 
-    item.addEventListener("touchstart", (ev) => {
-      if (!reorderMode) return;
-      const t = ev.touches[0];
-      touchStartY = t.clientY;
-      touchStartX = t.clientX;
-      touchMoved = false;
-    }, { passive: true });
-
-    item.addEventListener("touchmove", (ev) => {
-      if (!reorderMode) return;
-      const t = ev.touches[0];
-      const dy = Math.abs(t.clientY - touchStartY);
-      const dx = Math.abs(t.clientX - touchStartX);
-
-      // Consider it a drag only if vertical move sufficiently large and more vertical than horizontal
-      if (dy > THRESH && dy > dx) {
-        touchMoved = true;
-        ev.preventDefault(); // prevent page scroll while dragging
-      }
+    item.addEventListener("touchmove", e => {
+      e.preventDefault(); // stops scrolling during drag
     }, { passive: false });
 
-    item.addEventListener("touchend", (ev) => {
-      if (!reorderMode) return;
-      if (!touchMoved) return; // was a tap/scroll
+    item.addEventListener("touchend", e => {
+      const t = e.changedTouches[0];
 
-      const t = ev.changedTouches[0];
-      const dropEl = document.elementFromPoint(t.clientX, t.clientY);
-      if (!dropEl) return;
+      let dropTarget = document.elementFromPoint(t.clientX, t.clientY);
+      if (!dropTarget) return;
 
-      const dropItem = dropEl.closest(".img-item");
+      // FIX: if touch lands on IMG, find parent .img-item
+      const dropItem =
+        dropTarget.closest(".img-item") ||
+        (dropTarget.parentElement && dropTarget.parentElement.closest(".img-item"));
+
       if (!dropItem) return;
 
-      const fromIndex = parseInt(item.dataset.index, 10);
-      const toIndex = parseInt(dropItem.dataset.index, 10);
-      if (!isNaN(fromIndex) && !isNaN(toIndex) && fromIndex !== toIndex) {
-        swapImages(fromIndex, toIndex);
-      }
-    }, { passive: false });
+      const dropIndex = parseInt(dropItem.dataset.index, 10);
+      if (isNaN(dropIndex) || dragIndex === dropIndex) return;
+
+      swapImages(dragIndex, dropIndex, container);
+    });
   });
 }
 
-/* ---------- Swap images in galleryOrder and re-render (no page reload) ---------- */
-function swapImages(a, b) {
-  if (!galleryOrder || galleryOrder.length <= Math.max(a, b)) return;
-  const tmp = galleryOrder[a];
+/* Clean helper */
+function swapImages(a, b, container) {
+  const temp = galleryOrder[a];
   galleryOrder[a] = galleryOrder[b];
-  galleryOrder[b] = tmp;
-  // re-render gallery and apply to input
-  const gallery = $id("img-gallery");
-  renderGallery(gallery);
+  galleryOrder[b] = temp;
+
+  renderGallery(container);
   applyReorderToInput();
 }
 
-/* ---------- Apply reordered images to the real file input (no refresh) ---------- */
+
+/* Apply reordered images to the real input */
 function applyReorderToInput() {
   if (!galleryOrder || !galleryOrder.length) return;
+
   const dt = new DataTransfer();
   galleryOrder.forEach(f => dt.items.add(f));
   const fileInput = $id("fileInput");
   if (!fileInput) return;
   fileInput.files = dt.files;
-  // update file list UI to reflect new order
+
+  // Update the file list UI to reflect new order (names etc.)
   updateFileList();
 }
 
-/* ---------- AJAX upload / processFile (XHR for progress) ---------- */
+/* Close viewer (wire this to close button) */
+const closeViewer = $id("close-viewer");
+if (closeViewer) {
+  closeViewer.addEventListener("click", () => {
+    const popup = $id("pdf-viewer-popup");
+    if (popup) popup.style.display = "none";
+  });
+}
+
+/* -----------------------------------------------------
+   PROCESS FILE (Progress + Errors)
+----------------------------------------------------- */
 async function processFile() {
-  // Ensure reorder applied first
   applyReorderToInput();
 
   const params = new URLSearchParams(window.location.search);
-  const tool = params.get("tool") || "jpg-to-pdf"; // fallback in dev
+  const tool = params.get("tool");
 
+  let fd = new FormData();
   const input = $id("fileInput");
   const inputFiles = input && input.files ? [...input.files] : [];
 
-  // Basic validation
-  if (!inputFiles.length) return showError("Please select files.");
+  if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
+    if (!inputFiles.length) return showError("Please select files.");
+    inputFiles.forEach(f => fd.append("files", f));
+  } else {
+    const f = inputFiles[0];
+    if (!f) return showError("Please select a file.");
+    fd.append("file", f);
+  }
+
+  if (tool === "split-pdf") fd.append("ranges", $id("rangeInput").value);
+  if (tool === "rotate-pdf") fd.append("angle", $id("angleInput").value);
+  if (tool === "protect-pdf" || tool === "unlock-pdf")
+    fd.append("password", $id("passwordInput").value);
 
   const wrapper = $id("progress-wrapper");
   const bar = $id("progress-bar");
@@ -458,35 +390,22 @@ async function processFile() {
   const downloadBtn = $id("download-btn");
   const msgBox = $id("status-msg");
 
-  // Reset UI
-  if (wrapper) wrapper.style.display = "block";
-  if (bar) bar.style.width = "0%";
-  if (percent) percent.innerText = "0%";
-  if (downloadBtn) downloadBtn.style.display = "none";
-  if (msgBox) msgBox.style.display = "none";
-
-  const fd = new FormData();
-  if (tool === "merge-pdf" || tool === "jpg-to-pdf") {
-    inputFiles.forEach(f => fd.append("files", f));
-  } else {
-    fd.append("file", inputFiles[0]);
-  }
-
-  // optional tool-specific fields
-  if (tool === "split-pdf") fd.append("ranges", $id("rangeInput") ? $id("rangeInput").value : "");
-  if (tool === "rotate-pdf") fd.append("angle", $id("angleInput") ? $id("angleInput").value : "");
-  if (tool === "protect-pdf" || tool === "unlock-pdf") fd.append("password", $id("passwordInput") ? $id("passwordInput").value : "");
+  wrapper.style.display = "block";
+  bar.style.width = "0%";
+  percent.innerText = "0%";
+  downloadBtn.style.display = "none";
+  msgBox.style.display = "none";
 
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open("POST", `${API_BASE}/${tool}`);
     xhr.responseType = "blob";
 
-    xhr.upload.onprogress = (e) => {
+    xhr.upload.onprogress = e => {
       if (!e.lengthComputable) return;
       const p = Math.round((e.loaded / e.total) * 100);
-      if (bar) bar.style.width = p + "%";
-      if (percent) percent.innerText = p + "%";
+      bar.style.width = p + "%";
+      percent.innerText = p + "%";
     };
 
     xhr.onload = () => {
@@ -495,8 +414,10 @@ async function processFile() {
         return reject();
       }
 
-      if (bar) bar.style.width = "100%";
-      if (percent) percent.innerText = "100%";
+      bar.style.width = "100%";
+      percent.innerText = "100%";
+
+      // ❌ SUCCESS MESSAGE REMOVED COMPLETELY
 
       const blob = xhr.response;
       const url = URL.createObjectURL(blob);
@@ -514,12 +435,10 @@ async function processFile() {
         "extract-text": "output.txt"
       };
 
-      if (downloadBtn) {
-        downloadBtn.href = url;
-        downloadBtn.download = names[tool] || "output.pdf";
-        downloadBtn.textContent = "⬇️ Download File";
-        downloadBtn.style.display = "flex";
-      }
+      downloadBtn.href = url;
+      downloadBtn.download = names[tool] || "output.pdf";
+      downloadBtn.textContent = "⬇️ Download File";
+      downloadBtn.style.display = "flex";
 
       resolve();
     };
@@ -533,37 +452,34 @@ async function processFile() {
   });
 }
 
-/* ---------- Error / helper ---------- */
+/* -----------------------------------------------------
+   ERROR & SUCCESS HELPERS
+----------------------------------------------------- */
 function showError(msg) {
   const msgBox = $id("status-msg");
-  if (!msgBox) {
-    alert(msg);
-    return;
-  }
+  if (!msgBox) return;
   msgBox.className = "error-msg";
   msgBox.innerText = "⚠️ " + msg;
   msgBox.style.display = "block";
 }
 
-/* ---------- Read server error blob text ---------- */
+
+
 function readErrorMessage(blob) {
   if (!blob) {
     showError("Something went wrong.");
     return;
   }
-  const reader = new FileReader();
+  let reader = new FileReader();
   reader.onload = () => {
-    const text = reader.result || "";
-    const match = text.match(/<p>(.*?)<\/p>/i);
+    let text = reader.result || "";
+    let match = text.match(/<p>(.*?)<\/p>/i);
     if (match && match[1]) return showError(match[1]);
-    const clean = text.replace(/<[^>]+>/g, "").trim();
+
+    let clean = text.replace(/<[^>]+>/g, "").trim();
     if (clean.length) return showError(clean);
+
     showError("Something went wrong.");
   };
   reader.readAsText(blob);
 }
-
-/* ---------- Expose for HTML onclick usage (if needed) ---------- */
-window.processFile = processFile;
-window.openViewer = openViewer;
-window.closeViewerPopup = closeViewerPopup;
