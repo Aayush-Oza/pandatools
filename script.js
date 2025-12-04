@@ -265,6 +265,10 @@ function renderGallery(container) {
 
 function enableDrag(container) {
   let dragIndex = null;
+  let touchDragging = false;
+  let startY = 0;
+  let moveY = 0;
+  const DRAG_THRESHOLD = 15; // px — prevents scroll interference
 
   container.querySelectorAll(".img-item").forEach(item => {
 
@@ -288,37 +292,49 @@ function enableDrag(container) {
       item.style.opacity = "1";
 
       const dropIndex = parseInt(item.dataset.index, 10);
-      if (isNaN(dragIndex) || isNaN(dropIndex)) return;
-
-      swapImages(dragIndex, dropIndex, container);
+      if (!isNaN(dragIndex) && !isNaN(dropIndex)) {
+        swapImages(dragIndex, dropIndex, container);
+      }
     });
 
-    /* ---------------- MOBILE TOUCH ---------------- */
+
+    /* ---------------- MOBILE TOUCH DRAG ---------------- */
     item.addEventListener("touchstart", e => {
       dragIndex = parseInt(item.dataset.index, 10);
+      startY = e.touches[0].clientY;
+      moveY = 0;
+      touchDragging = false;   // will turn true only if user actually drags
     });
 
     item.addEventListener("touchmove", e => {
-      e.preventDefault(); // stops scrolling during drag
+      moveY = e.touches[0].clientY - startY;
+
+      // If user moves finger vertically less than threshold → allow scrolling
+      if (Math.abs(moveY) < DRAG_THRESHOLD) {
+        touchDragging = false;
+        return; // allow normal scroll
+      }
+
+      // Beyond threshold → now we consider it dragging
+      touchDragging = true;
+      e.preventDefault(); // stops scrolling ONLY when dragging
     }, { passive: false });
 
     item.addEventListener("touchend", e => {
+      if (!touchDragging) return; // do not reorder during normal scroll
+
       const t = e.changedTouches[0];
+      const dropElement = document.elementFromPoint(t.clientX, t.clientY);
+      if (!dropElement) return;
 
-      let dropTarget = document.elementFromPoint(t.clientX, t.clientY);
-      if (!dropTarget) return;
-
-      // FIX: if touch lands on IMG, find parent .img-item
-      const dropItem =
-        dropTarget.closest(".img-item") ||
-        (dropTarget.parentElement && dropTarget.parentElement.closest(".img-item"));
-
+      const dropItem = dropElement.closest(".img-item");
       if (!dropItem) return;
 
       const dropIndex = parseInt(dropItem.dataset.index, 10);
-      if (isNaN(dropIndex) || dragIndex === dropIndex) return;
 
-      swapImages(dragIndex, dropIndex, container);
+      if (!isNaN(dropIndex) && dragIndex !== dropIndex) {
+        swapImages(dragIndex, dropIndex, container);
+      }
     });
   });
 }

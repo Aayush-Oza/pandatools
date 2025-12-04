@@ -465,115 +465,120 @@ select {
 }
 
 /* =============================
-   VIEWER POPUP
+   VIEWER POPUP OVERLAY
 ============================= */
 
 #pdf-viewer-popup {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0,0,0,0.75);
-  overflow-y: auto;    /* FULL popup scroll */
-  padding: 30px 0;     /* space for closed top */
+  overflow-y: auto;     /* Only outer popup scrolls */
+  padding: 20px 0;
   z-index: 9999;
 }
 
 
+/* =============================
+   POPUP INNER BOX (NO SCROLL INSIDE)
+============================= */
 
-/* FULL WIDTH CLEAN POPUP */
 .popup-inner {
   background: #fff;
   width: 100%;
-  max-width: 850px;   /* perfect size, no huge side gaps */
+  max-width: 900px;      /* Looks perfect on large screens */
   margin: auto;
   padding: 0;
-  border-radius: 14px;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 
-  overflow: visible !important;   /* <-- VERY IMPORTANT FIX */
+  border-radius: 12px;
+  position: relative;
+
+  overflow: visible !important;   /* Fix image cutting */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
 }
 
 
-/* Mobile keep full width */
+/* MOBILE FIX — No extra margins */
 @media (max-width: 700px) {
   .popup-inner {
-    width: 90%;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;    /* Full width clean popup */
   }
 }
 
 
-#pdf-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
+/* =============================
+   CLOSE BUTTON — Always visible
+============================= */
 
-/* Viewer close */
 #close-viewer {
-  position: sticky;     /* stays visible while scrolling */
+  position: sticky;
   top: 10px;
   float: right;
 
   background: #000;
   color: #fff;
   border: none;
-  font-size: 22px;
-  padding: 6px 12px;
+  font-size: 24px;
+  padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
-  z-index: 10000;
+  z-index: 20000;
 }
 
 
-/* INFO BOX (missing earlier) */
-#viewer-info {
-  padding: 20px;
-  font-size: 14px;
-  color: #444;
-}
+/* =============================
+   IMAGE GALLERY WRAPPER
+============================= */
 
-/* GALLERY CLEAN, NO LEFT/RIGHT SPACE */
 #img-gallery {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   width: 100%;
+  gap: 22px;
+
   padding: 0;
   margin: 0;
 }
 
 
+/* EACH IMAGE ROW */
 .img-item {
   width: 100%;
   padding: 0;
   margin: 0;
 }
+
+
+/* IMAGES — Full width, no cropping */
 .img-item img {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: contain; /* no cropping */
+
   border-radius: 10px;
+  object-fit: contain;
 }
 
-/* MOBILE FIX */
+
+/* MOBILE SMALL FIXES */
 @media (max-width: 600px) {
   #pdf-viewer-popup {
-     padding: 10px 0;
-  }
-
-  .popup-inner {
-     width: 100%;
-     margin: 0;
-     border-radius: 0;
+    padding: 10px 0;
   }
 
   #img-gallery {
-     gap: 15px;
+    gap: 15px;   /* tighter space */
   }
 }
 
+
+/* =============================
+   INFO BOX FOR NON-IMAGE PREVIEW
+============================= */
+#viewer-info {
+  padding: 20px;
+  font-size: 14px;
+  color: #444;
+}
