@@ -650,3 +650,74 @@ select {
     max-height: 250px !important;
   }
 }
+/* -------------------------------------
+   PERFECT HORIZONTAL ROW FOR PDF ITEMS
+------------------------------------- */
+
+.pdf-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    width: 100%;
+    background: #fff;
+    padding: 12px 16px;
+    border-radius: 12px;
+
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+
+    cursor: grab;
+    transition: 0.25s ease;
+}
+
+.pdf-item:active {
+    cursor: grabbing;
+}
+
+.pdf-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* Icon */
+.pdf-icon {
+    font-size: 28px;
+    opacity: 0.9;
+    margin-right: 10px;
+}
+
+/* Text Section */
+.pdf-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.pdf-name {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.pdf-meta {
+    font-size: 13px;
+    opacity: 0.65;
+}
+
+/* VIEW BUTTON */
+.pdf-view-btn {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pdf-view-btn:hover {
+    background: #000;
+}

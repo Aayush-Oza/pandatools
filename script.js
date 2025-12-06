@@ -171,7 +171,9 @@ function openViewer() {
     info.style.display = "none";
 
     galleryOrder = [...originalFiles];
-    reorderMode = true; // always in reorder mode for merge-pdf list
+    reorderMode = false; // start OFF for merge-pdf
+showReorderToggle();
+renderGallery(gallery);
     showReorderToggle(); // shows toggle; user can turn it off if they want
     renderGallery(gallery);
     return;
@@ -260,15 +262,16 @@ function renderGallery(container) {
       const sizeKB = Math.round(file.size / 1024);
 
       div.innerHTML = `
-        <div class="pdf-item-inner">
-          <span class="pdf-icon">📄</span>
-          <div class="pdf-text">
-            <span class="pdf-name">${file.name}</span>
-            <span class="pdf-meta">${sizeKB} KB</span>
-          </div>
-          <button type="button" class="pdf-view-btn">View</button>
-        </div>
-      `;
+    <span class="pdf-icon">📄</span>
+
+    <div class="pdf-info">
+        <span class="pdf-name">${file.name}</span>
+        <span class="pdf-meta">${sizeKB} KB</span>
+    </div>
+
+    <button class="pdf-view-btn">View</button>
+`;
+
 
       const viewBtn = div.querySelector(".pdf-view-btn");
       if (viewBtn) {
