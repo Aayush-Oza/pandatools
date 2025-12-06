@@ -485,6 +485,7 @@ if (tool === "extract-text") {
         "compress-pdf": "compressed.pdf",
         "word-to-pdf": "output.pdf",
         "ppt-to-pdf": "output.pdf",
+        "ppt-to-pdf-perfect": "output.pdf",
         "extract-text": "output.txt" // keep same name but must convert blob to text
       };
 
