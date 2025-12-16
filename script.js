@@ -266,15 +266,15 @@ function renderGallery(container) {
         div.querySelector(".pdf-view-btn").onclick = () =>
           window.open(file._url || (file._url = URL.createObjectURL(file)));
       } else {
-        div.className = "img-item";
-        const im = document.createElement("img");
-        im.src = file._url || (file._url = URL.createObjectURL(file));
-        im.loading = "lazy";
-        frag.appendChild(div);
-        div.appendChild(im);
-      }
+  div.className = "img-item";
+  const im = document.createElement("img");
+  im.src = file._url || (file._url = URL.createObjectURL(file));
+  im.loading = "lazy";
+  div.appendChild(im);
+}
 
-      frag.appendChild(div);
+frag.appendChild(div);
+
     }
 
     container.appendChild(frag);
@@ -334,6 +334,11 @@ function applyReorderToInput() {
    PROCESS FILE (UPLOAD + RESPONSE)
 ============================================================ */
 async function processFile() {
+  // 🔥 Wake backend (Render sleep fix)
+  try {
+    await fetch(`${API_BASE}/`);
+  } catch {}
+
   applyReorderToInput();
 
   const tool = new URLSearchParams(window.location.search).get("tool");
@@ -342,41 +347,41 @@ async function processFile() {
   if (!input.files.length) return showError("Please select a file.");
 
   const files = [...input.files];
-
   if (!validateSize(files, tool)) return;
 
   const fd = new FormData();
 
-  if (["merge-pdf", "jpg-to-pdf"].includes(tool))
+  if (["merge-pdf", "jpg-to-pdf"].includes(tool)) {
     files.forEach(f => fd.append("files", f));
-  else fd.append("file", files[0]);
+  } else {
+    fd.append("file", files[0]);
+  }
 
   if (tool === "split-pdf") fd.append("ranges", $id("rangeInput").value);
   if (tool === "rotate-pdf") fd.append("angle", $id("angleInput").value);
   if (["protect-pdf", "unlock-pdf"].includes(tool))
     fd.append("password", $id("passwordInput").value);
 
-  /* NEW → SEND PAGES FOR PDF → JPG  */
+  // PDF → JPG pages
   if (tool === "pdf-to-jpg") {
     const pages = ($id("pagesInput").value || "").trim();
-
-    // Validate format: 1,2,5-7
     if (pages && !/^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/.test(pages)) {
       return showError("Invalid format. Example: 1,3,5-7");
     }
-
     fd.append("pages", pages);
   }
 
   resetProgress();
+  updateProgress(5);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", `${API_BASE}/${tool}`);
   xhr.responseType = "blob";
 
   xhr.upload.onprogress = e => {
-    if (e.lengthComputable)
-      updateProgress(Math.round((e.loaded / e.total) * 100));
+    if (e.lengthComputable) {
+      updateProgress(Math.round((e.loaded / e.total) * 80));
+    }
   };
 
   xhr.onload = () => {
@@ -385,22 +390,62 @@ async function processFile() {
       return;
     }
 
-    updateProgress(100);
+    updateProgress(90);
 
-    if (tool === "extract-text") return handleExtractText(xhr.response);
+    // ✅ EXTRACT TEXT (SAFE)
+    if (tool === "extract-text") {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!data.text) throw new Error();
 
+          const blob = new Blob([data.text], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "output.txt";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          const btn = $id("download-btn");
+          btn.href = url;
+          btn.download = "output.txt";
+          btn.style.display = "flex";
+        } catch {
+          showError("Failed to extract text");
+        }
+      };
+      reader.readAsText(xhr.response);
+      return;
+    }
+
+    // ✅ ALL OTHER TOOLS
     const blob = xhr.response;
     const url = URL.createObjectURL(blob);
+
+    // AUTO DOWNLOAD (prevents GitHub Pages 404)
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = getDownloadName(tool);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
     const btn = $id("download-btn");
     btn.href = url;
     btn.download = getDownloadName(tool);
     btn.style.display = "flex";
+
+    updateProgress(100);
   };
 
   xhr.onerror = () => showError("Network error");
   xhr.send(fd);
 }
+
 
 /* ============================================================
    PROGRESS BAR
@@ -421,18 +466,45 @@ function updateProgress(p) {
 ============================================================ */
 function handleExtractText(blob) {
   const reader = new FileReader();
+
   reader.onload = () => {
-    const json = JSON.parse(reader.result);
-    const txtBlob = new Blob([json.text], { type: "text/plain" });
+    let data;
+
+    try {
+      data = JSON.parse(reader.result);
+    } catch {
+      showError("Failed to read extracted text");
+      return;
+    }
+
+    if (!data.text) {
+      showError("No text found in document");
+      return;
+    }
+
+    const txtBlob = new Blob([data.text], { type: "text/plain" });
     const url = URL.createObjectURL(txtBlob);
 
+    // 🔥 AUTO DOWNLOAD (prevents 404 issues)
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "output.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // Optional: still show download button
     const btn = $id("download-btn");
-    btn.href = url;
-    btn.download = "output.txt";
-    btn.style.display = "flex";
+    if (btn) {
+      btn.href = url;
+      btn.download = "output.txt";
+      btn.style.display = "flex";
+    }
   };
+
   reader.readAsText(blob);
 }
+
 
 /* ============================================================
    DOWNLOAD NAME MAP
@@ -465,11 +537,17 @@ function showError(msg) {
 function readErrorMessage(blob) {
   const reader = new FileReader();
   reader.onload = () => {
-    const clean = reader.result.replace(/<[^>]+>/g, "").trim();
-    showError(clean || "Something went wrong.");
+    try {
+      const json = JSON.parse(reader.result);
+      showError(json.error || "Something went wrong");
+    } catch {
+      const clean = reader.result.replace(/<[^>]+>/g, "").trim();
+      showError(clean || "Something went wrong.");
+    }
   };
   reader.readAsText(blob);
 }
+
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({
