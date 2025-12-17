@@ -33,6 +33,11 @@
     <!-- Split PDF Ranges -->
     <input type="text" id="rangeInput" placeholder="Enter page ranges (e.g. 1-3,5)"
            style="display:none;margin-top:10px;">
+    <select id="compressLevel" style="display:none;margin-top:10px;">
+  <option value="low">High Compression (Smaller file)</option>
+  <option value="medium">Balanced</option>
+  <option value="high">Best Quality</option>
+</select>
 
     <!-- Rotate Angle -->
     <select id="angleInput" style="display:none;margin-top:10px;">
@@ -79,7 +84,8 @@
 "></p>
 
     <!-- Download Button -->
-    <a id="download-btn" href="#" download></a>
+    <a id="download-btn" href="#" download>⬇ Download File</a>
+
 
     <!-- Extracted Text Output -->
     <textarea id="textOutput" 

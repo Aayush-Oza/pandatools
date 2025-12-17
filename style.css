@@ -289,20 +289,20 @@ select {
 /* =============================
    DOWNLOAD BUTTON
 ============================= */
-
 #download-btn {
   display: none;
   margin-top: 25px;
-  background: var(--accent-2);
-  padding: 10px 16px;     /* slimmer */
+  background: #111;
+  padding: 12px 16px;
   border-radius: 12px;
   color: #fff;
   text-decoration: none;
   font-weight: 900;
   font-size: 1rem;
   width: 100%;
-  min-height: 42px;     ;
-  display: none;
+  min-height: 44px;
+
+  display: flex;
   align-items: center;
   justify-content: center;
 
@@ -311,8 +311,8 @@ select {
 }
 
 #download-btn:hover {
-  background: #000 !important;
-  transform: translateY(-4px);
+  background: #000;
+  transform: translateY(-3px);
 }
 
 /* =============================

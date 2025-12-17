@@ -53,6 +53,9 @@ function initTools() {
 
   if (tool === "split-pdf") $id("rangeInput").style.display = "block";
   if (tool === "rotate-pdf") $id("angleInput").style.display = "block";
+  if (tool === "compress-pdf") {
+  $id("compressLevel").style.display = "block";
+}
 
   /* 🔥 SHOW PAGE INPUT FOR PDF → JPG */
   if (tool === "pdf-to-jpg" && $id("pagesInput")) {
@@ -62,8 +65,10 @@ function initTools() {
   const viewBtn = $id("view-btn");
   if (viewBtn) viewBtn.addEventListener("click", openViewer);
 
-  const downloadBtn = $id("download-btn");
-  if (downloadBtn) downloadBtn.style.display = "none";
+  const btn = $id("download-btn");
+btn.style.display = "none";
+
+
 
   const closeBtn = $id("close-viewer");
   if (closeBtn)
@@ -225,15 +230,21 @@ function openViewer() {
 function showReorderToggle() {
   const toggle = $id("reorder-toggle");
   const status = $id("reorder-status");
+
+  if (galleryOrder.length < 2) return;
+
   toggle.style.display = "inline-flex";
 
   toggle.onclick = () => {
     reorderMode = !reorderMode;
     toggle.setAttribute("aria-pressed", reorderMode);
     status.style.display = reorderMode ? "inline-block" : "none";
+
+    // 🔥 ADD THIS
     renderGallery($id("img-gallery"));
   };
 }
+
 
 function renderGallery(container) {
   container.innerHTML = "";
@@ -313,9 +324,12 @@ function enableDrag(container) {
 
 function swapImages(a, b, container) {
   if (a === b) return;
+
   const temp = galleryOrder[a];
   galleryOrder[a] = galleryOrder[b];
   galleryOrder[b] = temp;
+
+  // 🔥 Re-render and re-bind indexes
   renderGallery(container);
 }
 
@@ -361,6 +375,9 @@ async function processFile() {
   if (tool === "rotate-pdf") fd.append("angle", $id("angleInput").value);
   if (["protect-pdf", "unlock-pdf"].includes(tool))
     fd.append("password", $id("passwordInput").value);
+  if (tool === "compress-pdf") {
+  fd.append("level", $id("compressLevel").value);
+}
 
   // PDF → JPG pages
   if (tool === "pdf-to-jpg") {
@@ -395,51 +412,55 @@ async function processFile() {
     // ✅ EXTRACT TEXT (SAFE)
     if (tool === "extract-text") {
       const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result);
-          if (!data.text) throw new Error();
+reader.onload = () => {
+  const data = JSON.parse(reader.result);
+  const textBlob = new Blob([data.text], { type: "text/plain" });
+  const url = URL.createObjectURL(textBlob);
 
-          const blob = new Blob([data.text], { type: "text/plain" });
-          const url = URL.createObjectURL(blob);
+  const filename = data.filename || "output.txt";
 
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "output.txt";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-          const btn = $id("download-btn");
-          btn.href = url;
-          btn.download = "output.txt";
-          btn.style.display = "flex";
-        } catch {
-          showError("Failed to extract text");
-        }
-      };
-      reader.readAsText(xhr.response);
+  const btn = $id("download-btn");
+  btn.href = url;
+  btn.download = filename;
+  btn.innerText = "⬇ Download Text";
+  btn.style.display = "flex";
+};
+reader.readAsText(xhr.response);
+
       return;
     }
 
     // ✅ ALL OTHER TOOLS
     const blob = xhr.response;
-    const url = URL.createObjectURL(blob);
+const url = URL.createObjectURL(blob);
 
-    // AUTO DOWNLOAD (prevents GitHub Pages 404)
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = getDownloadName(tool);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+// ✅ Read filename from backend
+let filename =
+  xhr.getResponseHeader("X-Filename") ||
+  files[0].name;
 
-    const btn = $id("download-btn");
-    btn.href = url;
-    btn.download = getDownloadName(tool);
-    btn.style.display = "flex";
+const a = document.createElement("a");
+a.href = url;
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+a.remove();
 
-    updateProgress(100);
+const btn = $id("download-btn");
+btn.href = url;
+btn.download = filename;
+btn.innerText = "⬇ Download File";
+btn.style.display = "flex";
+
+updateProgress(100);
+
   };
 
   xhr.onerror = () => showError("Network error");
@@ -509,20 +530,6 @@ function handleExtractText(blob) {
 /* ============================================================
    DOWNLOAD NAME MAP
 ============================================================ */
-function getDownloadName(tool) {
-  return {
-    "pdf-to-word": "output.docx",
-    "pdf-to-jpg": "images.zip",
-    "jpg-to-pdf": "output.pdf",
-    "merge-pdf": "merged.pdf",
-    "split-pdf": "split.zip",
-    "rotate-pdf": "rotated.pdf",
-    "compress-pdf": "compressed.pdf",
-    "word-to-pdf": "output.pdf",
-    "ppt-to-pdf": "output.pdf",
-    "extract-text": "output.txt"
-  }[tool] || "output.pdf";
-}
 
 /* ============================================================
    UTILITIES
