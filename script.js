@@ -429,7 +429,8 @@ reader.onload = () => {
   const btn = $id("download-btn");
   btn.href = url;
   btn.download = filename;
-  btn.innerText = "⬇ Download Text";
+  btn.innerText = "📄 Download Text";
+
   btn.style.display = "flex";
 };
 reader.readAsText(xhr.response);
@@ -456,7 +457,8 @@ a.remove();
 const btn = $id("download-btn");
 btn.href = url;
 btn.download = filename;
-btn.innerText = "⬇ Download File";
+btn.innerText = "📥 Download File";
+
 btn.style.display = "flex";
 
 updateProgress(100);
