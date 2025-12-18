@@ -444,7 +444,7 @@ const url = URL.createObjectURL(blob);
 // ✅ Read filename from backend
 let filename =
   xhr.getResponseHeader("X-Filename") ||
-  files[0].name;
+  getDefaultName(tool, files[0].name);
 
 const a = document.createElement("a");
 a.href = url;
