@@ -569,3 +569,20 @@ function escapeHtml(s) {
 function openTool(t) {
   location.href = `tool.html?tool=${t}`;
 }
+function getDefaultName(tool, originalName) {
+  const base = originalName.replace(/\.[^/.]+$/, "");
+
+  const map = {
+    "ppt-to-pdf": `${base}.pdf`,
+    "word-to-pdf": `${base}.pdf`,
+    "pdf-to-word": `${base}.docx`,
+    "jpg-to-pdf": `${base}.pdf`,
+    "merge-pdf": "merged.pdf",
+    "split-pdf": "split.zip",
+    "compress-pdf": `${base}_compressed.pdf`,
+    "pdf-to-jpg": `${base}_images.zip`,
+    "rotate-pdf": `${base}_rotated.pdf`,
+  };
+
+  return map[tool] || `${base}.pdf`;
+}
