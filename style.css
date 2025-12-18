@@ -729,3 +729,37 @@ body.ready {
     display: block;
   }
 }
+@media (min-width: 1024px) {
+  .popup-inner {
+    max-width: 1100px;   /* wider viewer */
+    padding: 24px 0;
+  }
+}
+@media (min-width: 900px) {
+  #img-gallery img {
+    max-height: 70vh;        /* prevent over-tall images */
+    width: auto;
+    margin: 0 auto;
+    display: block;
+    background: #fff;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+    border-radius: 6px;
+  }
+}
+@media (min-width: 900px) {
+  #img-gallery {
+    gap: 28px;   /* instead of 40+ */
+  }
+}
+@media (min-width: 900px) {
+  .img-item {
+    padding: 14px 0;
+    background: #f7f7f7;
+    border-radius: 8px;
+  }
+}
+@media (min-width: 900px) {
+  #pdf-viewer-popup {
+    background: rgba(0,0,0,0.85);
+  }
+}

@@ -72,7 +72,11 @@ btn.style.display = "none";
 
   const closeBtn = $id("close-viewer");
   if (closeBtn)
-    closeBtn.onclick = () => ($id("pdf-viewer-popup").style.display = "none");
+    closeBtn.onclick = () => {
+  applyReorderToInput(); // 🔥 sync reordered files
+  $id("pdf-viewer-popup").style.display = "none";
+};
+
 }
 
 /* ============================================================
