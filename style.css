@@ -763,3 +763,56 @@ body.ready {
     background: rgba(0,0,0,0.85);
   }
 }
+/* ============================
+   DESKTOP VIEWER — FINAL FIX
+============================ */
+@media (min-width: 1024px) {
+
+  /* Darker, cleaner backdrop */
+  #pdf-viewer-popup {
+    background: rgba(0,0,0,0.88);
+  }
+
+  /* Wider viewer */
+  .popup-inner {
+    max-width: 1200px;
+    padding: 24px 0 40px;
+  }
+
+  /* Center gallery with controlled width */
+  #img-gallery {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 0;
+    gap: 32px;
+  }
+
+  /* Each page as a clean card */
+  .img-item {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+  }
+
+  /* Image sizing — VERY IMPORTANT */
+  .img-item img {
+    max-height: 68vh;        /* prevents ultra tall images */
+    width: auto;
+    margin: 0 auto;
+    display: block;
+    border-radius: 6px;
+  }
+
+  /* Reorder visual clarity */
+  .popup-inner.reorder-mode .img-item {
+    outline: 2px dashed #bbb;
+    background: #fffdf5;
+  }
+
+  /* Smooth drag feeling */
+  .img-item.dragging {
+    opacity: 0.45;
+    transform: scale(0.98);
+  }
+}

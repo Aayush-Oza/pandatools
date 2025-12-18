@@ -336,19 +336,16 @@ function enableDrag(container) {
     });
 
     item.addEventListener("dragover", e => {
+      e.preventDefault(); // allow drop
+    });
+
+    item.addEventListener("drop", e => {
       e.preventDefault();
 
       const targetIndex = Number(item.dataset.index);
       if (draggedIndex === null || draggedIndex === targetIndex) return;
 
-      const rect = item.getBoundingClientRect();
-      const isBelow = e.clientY > rect.top + rect.height / 2;
-
-      const newIndex = isBelow ? targetIndex + 1 : targetIndex;
-
-      moveItem(draggedIndex, newIndex);
-      draggedIndex = newIndex;
-
+      moveItem(draggedIndex, targetIndex);
       renderGallery(container);
     });
 
