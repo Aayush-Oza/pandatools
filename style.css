@@ -555,34 +555,36 @@ select {
   display:block;
 }
 
-/* Gallery (stacked images) */
+/* FORCE VERTICAL STACK */
 #img-gallery {
+  display: flex;
+  flex-direction: column;   /* 🔥 vertical */
+  gap: 20px;
+  width: 100%;
   max-width: 820px;
   margin: 0 auto;
-  padding-bottom: 40px;
+  padding: 12px;
 }
 
-
-/* each image row acts like a draggable card */
-/* Allow dragging */
+/* Each image card */
 .img-item {
+  width: 100%;
   cursor: grab;
-  touch-action: none;        /* IMPORTANT */
+  user-select: none;
+  touch-action: none;       /* 🔥 required for drag */
 }
 
-/* While dragging */
 .img-item.dragging {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: grabbing;
 }
 
-/* 🔥 Disable pointer events on image */
+/* Image should NOT capture drag */
 .img-item img {
-  pointer-events: none;   /* 🔥 THIS FIXES DESKTOP DRAG */
-  user-select: none;
-  -webkit-user-drag: none;
-  max-width: 100%;
-  max-height: 80vh;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;     /* 🔥 VERY IMPORTANT */
 }
 
 /* small hint shown at bottom when reorder is enabled */

@@ -316,29 +316,45 @@ frag.appendChild(div);
 }
 
 function enableDrag(container) {
-  container.querySelectorAll("[data-index]").forEach(item => {
+  let draggedIndex = null;
+
+  container.querySelectorAll(".img-item").forEach(item => {
 
     item.addEventListener("dragstart", e => {
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", item.dataset.index);
+      draggedIndex = Number(item.dataset.index);
       item.classList.add("dragging");
-    });
-
-    item.addEventListener("dragover", e => {
-      e.preventDefault(); // REQUIRED
-    });
-
-    item.addEventListener("drop", e => {
-      e.preventDefault();
-      const a = parseInt(e.dataTransfer.getData("text/plain"));
-      const b = parseInt(item.dataset.index);
-      swapImages(a, b, container);
+      e.dataTransfer.effectAllowed = "move";
     });
 
     item.addEventListener("dragend", () => {
       item.classList.remove("dragging");
+      draggedIndex = null;
     });
+
+    item.addEventListener("dragover", e => {
+      e.preventDefault();
+
+      const targetIndex = Number(item.dataset.index);
+      if (draggedIndex === null || draggedIndex === targetIndex) return;
+
+      const rect = item.getBoundingClientRect();
+      const isBelow = e.clientY > rect.top + rect.height / 2;
+
+      const newIndex = isBelow ? targetIndex + 1 : targetIndex;
+
+      moveItem(draggedIndex, newIndex);
+      draggedIndex = newIndex;
+
+      renderGallery(container);
+    });
+
   });
+}
+function moveItem(from, to) {
+  if (to < 0 || to >= galleryOrder.length) return;
+
+  const item = galleryOrder.splice(from, 1)[0];
+  galleryOrder.splice(to, 0, item);
 }
 
 function swapImages(a, b, container) {
