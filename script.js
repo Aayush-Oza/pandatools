@@ -230,21 +230,28 @@ function openViewer() {
 function showReorderToggle() {
   const toggle = $id("reorder-toggle");
   const status = $id("reorder-status");
+  const popupInner = document.querySelector(".popup-inner");
 
-  if (galleryOrder.length < 2) return;
+  if (!toggle || galleryOrder.length < 2) return;
 
   toggle.style.display = "inline-flex";
 
   toggle.onclick = () => {
     reorderMode = !reorderMode;
+
     toggle.setAttribute("aria-pressed", reorderMode);
     status.style.display = reorderMode ? "inline-block" : "none";
 
-    // 🔥 ADD THIS
+    // 🔥 CRITICAL: stop scroll while dragging
+    popupInner.style.overflowY = reorderMode ? "hidden" : "auto";
+
+    // 🔥 Visual cue
+    popupInner.classList.toggle("reorder-mode", reorderMode);
+
+    // 🔥 Re-render with draggable enabled
     renderGallery($id("img-gallery"));
   };
 }
-
 
 function renderGallery(container) {
   container.innerHTML = "";
@@ -262,6 +269,12 @@ function renderGallery(container) {
       const div = document.createElement("div");
       div.dataset.index = i;
       div.draggable = reorderMode;
+      if (reorderMode) {
+  div.classList.add("reorder-active");
+} else {
+  div.classList.remove("reorder-active");
+}
+
 
       if (tool === "merge-pdf") {
         div.className = "pdf-item";
@@ -291,7 +304,12 @@ frag.appendChild(div);
     container.appendChild(frag);
 
     if (i < total) requestAnimationFrame(renderChunk);
-    else if (reorderMode) enableDrag(container);
+    else {
+  if (reorderMode) {
+    enableDrag(container);
+  }
+}
+
   }
 
   requestAnimationFrame(renderChunk);
@@ -299,14 +317,15 @@ frag.appendChild(div);
 
 function enableDrag(container) {
   container.querySelectorAll("[data-index]").forEach(item => {
+
     item.addEventListener("dragstart", e => {
+      e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", item.dataset.index);
       item.classList.add("dragging");
     });
 
     item.addEventListener("dragover", e => {
-      e.preventDefault();
-      item.classList.add("drag-over");
+      e.preventDefault(); // REQUIRED
     });
 
     item.addEventListener("drop", e => {
@@ -316,9 +335,9 @@ function enableDrag(container) {
       swapImages(a, b, container);
     });
 
-    item.addEventListener("dragleave", () =>
-      item.classList.remove("drag-over")
-    );
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+    });
   });
 }
 

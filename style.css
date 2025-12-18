@@ -557,41 +557,32 @@ select {
 
 /* Gallery (stacked images) */
 #img-gallery {
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-  padding: 12px 12px 0 12px;
-  width:100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding-bottom: 40px;
 }
+
 
 /* each image row acts like a draggable card */
+/* Allow dragging */
 .img-item {
-  width:100%;
-  margin:0;
-  padding:0;
-  cursor:grab;
-  display:block;
-  border-radius:8px;
-  overflow:hidden;
-  background:transparent;
-  -webkit-user-select:none;
-  user-select:none;
+  cursor: grab;
+  touch-action: none;        /* IMPORTANT */
 }
 
-/* dragging visual */
+/* While dragging */
 .img-item.dragging {
-  opacity:0.6;
-  transform: scale(0.995);
-  outline: 3px dashed rgba(0,0,0,0.06);
+  opacity: 0.5;
+  cursor: grabbing;
 }
 
-/* img full width */
+/* 🔥 Disable pointer events on image */
 .img-item img {
-  display:block;
-  width:100%;
-  height:auto;
-  object-fit:contain;
-  border-radius:6px;
+  pointer-events: none;   /* 🔥 THIS FIXES DESKTOP DRAG */
+  user-select: none;
+  -webkit-user-drag: none;
+  max-width: 100%;
+  max-height: 80vh;
 }
 
 /* small hint shown at bottom when reorder is enabled */
@@ -728,4 +719,11 @@ body {
 
 body.ready {
     opacity: 1;
+}
+@media (min-width: 900px) {
+  #img-gallery img {
+    max-height: 75vh;
+    margin: 0 auto;
+    display: block;
+  }
 }
