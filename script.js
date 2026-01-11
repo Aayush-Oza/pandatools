@@ -67,9 +67,6 @@ function initTools() {
 
   const btn = $id("download-btn");
 btn.style.display = "none";
-
-
-
   const closeBtn = $id("close-viewer");
   if (closeBtn)
     closeBtn.onclick = () => {
@@ -271,14 +268,13 @@ function renderGallery(container) {
     for (let end = Math.min(i + CHUNK, total); i < end; i++) {
       const file = galleryOrder[i];
       const div = document.createElement("div");
-      div.dataset.index = i;
+      div._file = file;
       div.draggable = reorderMode;
       if (reorderMode) {
   div.classList.add("reorder-active");
 } else {
   div.classList.remove("reorder-active");
 }
-
 
       if (tool === "merge-pdf") {
         div.className = "pdf-item";
@@ -320,32 +316,37 @@ frag.appendChild(div);
 }
 
 function enableDrag(container) {
-  let draggedIndex = null;
+  let dragged = null;
 
   container.querySelectorAll(".img-item").forEach(item => {
 
     item.addEventListener("dragstart", e => {
-      draggedIndex = Number(item.dataset.index);
+      dragged = item._file;
       item.classList.add("dragging");
       e.dataTransfer.effectAllowed = "move";
     });
 
     item.addEventListener("dragend", () => {
       item.classList.remove("dragging");
-      draggedIndex = null;
+      dragged = null;
     });
 
     item.addEventListener("dragover", e => {
-      e.preventDefault(); // allow drop
+      e.preventDefault();
     });
 
     item.addEventListener("drop", e => {
       e.preventDefault();
+      const target = item._file;
 
-      const targetIndex = Number(item.dataset.index);
-      if (draggedIndex === null || draggedIndex === targetIndex) return;
+      if (!dragged || dragged === target) return;
 
-      moveItem(draggedIndex, targetIndex);
+      const from = galleryOrder.indexOf(dragged);
+      const to = galleryOrder.indexOf(target);
+
+      galleryOrder.splice(from, 1);
+      galleryOrder.splice(to, 0, dragged);
+
       renderGallery(container);
     });
 
@@ -624,3 +625,4 @@ function getDefaultName(tool, originalName) {
 
   return map[tool] || `${base}.pdf`;
 }
+
