@@ -1,48 +1,38 @@
 /* =====================================================
      🐼 PANDA TOOLS THEME — CLEAN BLACK & WHITE
 ===================================================== */
-
 :root {
   --bg: #f5f5f5;             
   --panel: #ffffff;          
   --text: #111;              
   --muted: #666;             
-
   --accent-1: #000000;       
   --accent-2: #2e2e2e;       
-
   --gradient: linear-gradient(135deg, #000000, #3a3a3a);
-
   --shadow: 0 10px 30px rgba(0,0,0,0.12);
   --soft-shadow: 0 6px 20px rgba(0,0,0,0.10);
-
   --transition: .25s ease;
   --radius: 20px;
 }
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
   background: var(--bg);
   color: var(--text);
   font-family: "Poppins", sans-serif;
   overflow-x: hidden;
 }
-
 .container {
   width: 95%;
   max-width: 1100px;
   margin: 0 auto;
 }
-
 /* =============================
    HERO — PANDA STYLE
 ============================= */
-
 .hero {
   background: var(--gradient);
   color: #fff;
@@ -52,13 +42,11 @@ body {
   border-bottom-right-radius: 20px;
   box-shadow: var(--shadow);
 }
-
 .hero-title {
   font-size: 2.8rem;
   font-weight: 900;
   letter-spacing: 1px;
 }
-
 .hero-sub { 
   opacity: .95;
   margin-top: 6px;
@@ -66,46 +54,38 @@ body {
   font-weight: 500;
   color: #d9d9d9;
 }
-
 /* Mobile hero fix */
 @media (min-width: 768px) {
   .hero-title { font-size: 3.2rem; }
   .hero-sub { font-size: 1.3rem; }
 }
-
 /* =============================
    TOOLS GRID — FULL RESPONSIVE
 ============================= */
-
 .tools-section {
   margin: 60px 0;
 }
-
 .section-title {
   text-align: center;
   font-size: 2.3rem;
   margin-bottom: 30px;
   font-weight: 900;
 }
-
 .tools-grid {
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, 1fr);
 }
-
 @media(min-width: 600px) {
   .tools-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-
 @media(min-width: 900px) {
   .tools-grid {
     grid-template-columns: repeat(5, 1fr);
   }
 }
-
 .tool-card {
   background: var(--panel);
   padding: 26px;
@@ -121,28 +101,23 @@ body {
   align-items: center;
   justify-content: flex-start;
 }
-
 .tool-card:hover {
   transform: translateY(-6px);
   border: 2px solid var(--accent-2);
   box-shadow: 0 25px 45px rgba(0,0,0,0.15);
 }
-
 .tool-icon {
   font-size: 45px;
   color: var(--accent-2);
   margin-bottom: 12px;
 }
-
 .tool-title {
   font-size: 1.15rem;
   font-weight: 800;
 }
-
 /* =============================
    UPLOAD PAGE — PANDA CLEAN
 ============================= */
-
 .upload-box {
   background: var(--panel);
   padding: 25px;
@@ -153,7 +128,6 @@ body {
   text-align: center;
   border: 2px solid #eee;
 }
-
 input[type="file"],
 input[type="password"],
 input[type="text"],
@@ -165,7 +139,6 @@ select {
   width: 100%;
   margin-top: 10px;
 }
-
 .btn {
   padding: 10px 16px;
   border-radius: 12px;
@@ -179,30 +152,25 @@ select {
   width: 100%;
   transition: .25s ease;
 }
-
 .btn:hover {
   transform: translateY(-4px);
   background: #45a148;
 }
-
 /* =============================
    FOOTER
 ============================= */
-
 .site-footer {
   background: #f0f0f0;
   padding: 50px 0;
   margin-top: 80px;
   border-top: 2px solid #ccc;
 }
-
 .footer-grid {
   display: grid;
   gap: 20px;
   justify-items: center;
   text-align: center;
 }
-
 @media (min-width: 768px) {
   .footer-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -210,7 +178,6 @@ select {
     justify-items: start;
   }
 }
-
 .footer-card {
   background: var(--panel);
   padding: 20px;
@@ -218,18 +185,15 @@ select {
   box-shadow: var(--soft-shadow);
   border: 1px solid #ddd;
 }
-
 .socials {
   display: flex;
   gap: 12px;
   margin-top: 12px;
   justify-content: center;
 }
-
 @media (min-width: 768px) {
   .socials { justify-content: flex-start; }
 }
-
 .social {
   padding: 10px;
   background: #fff;
@@ -240,18 +204,15 @@ select {
   align-items: center;
   justify-content: center;
 }
-
 .social:hover {
   background: #000;
   color: #fff;
   border-color: #000;
   transform: translateY(-3px);
 }
-
 /* =============================
    PROGRESS BAR
 ============================= */
-
 #progress-wrapper {
   width: 100%;
   height: 28px;
@@ -262,14 +223,12 @@ select {
   display: none;
   position: relative;
 }
-
 #progress-bar {
   height: 100%;
   width: 0%;
   background: var(--accent-2);
   transition: width .25s ease;
 }
-
 #progress-percent {
   position: absolute;
   inset: 0;
@@ -281,7 +240,6 @@ select {
   color: #fff;
   pointer-events: none;
 }
-
 /* =============================
    DOWNLOAD BUTTON
 ============================= */
@@ -297,28 +255,22 @@ select {
   font-size: 1rem;
   width: 100%;
   min-height: 44px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   transition: .25s ease;
 }
-
 #download-btn:hover {
   background: #000;
   transform: translateY(-3px);
 }
-
 /* =============================
    FILE LIST UI
 ============================= */
-
 .hidden-input {
   display: none;
 }
-
 .upload-label {
   display: block;
   text-align: center;
@@ -334,16 +286,13 @@ select {
   transition: .25s ease;
   margin-top: 10px;
 }
-
 .upload-label:hover {
   background: #e8f7ea;
   transform: translateY(-3px);
 }
-
 .file-list {
   margin-top: 15px;
 }
-
 .file-item {
   background: #fafafa;
   border: 2px solid #e0e0e0;
@@ -355,18 +304,15 @@ select {
   align-items: center;
   gap: 10px;
 }
-
 .file-item svg {
   width: 20px;
   height: 20px;
   fill: var(--accent-2);
 }
-
 .file-name {
   flex: 1;
   word-break: break-all;
 }
-
 .remove-btn {
   background: transparent;
   border: none;
@@ -375,15 +321,12 @@ select {
   padding: 5px;
   color: #d33;
 }
-
 .remove-btn:hover {
   color: red;
 }
-
 /* =============================
    MOBILE OPTIMIZED
 ============================= */
-
 @media (max-width: 480px) {
   .hero {
     padding: 35px 20px;
@@ -394,7 +337,6 @@ select {
   .hero-sub {
     font-size: 0.9rem;
   }
-
   .tool-card {
     padding: 18px;
   }
@@ -409,7 +351,6 @@ select {
     gap: 14px;
   }
 }
-
 /* SUCCESS / ERROR MSG */
 .success-msg {
   display: block !important;
@@ -423,43 +364,36 @@ select {
   color: #b30000;
   border: 2px solid #ff8a8a;
 }
-
 /* =============================
    VIEW FILE BUTTON — IMPROVED UI
 ============================= */
-
 #view-btn {
   display: none;
-  margin: 14px auto 0 auto;      /* CENTER + CLEAN SPACING */
-  background: #1c1c1c;           /* PREMIUM DARK */
-  padding: 8px 18px;             /* Better size */
+  margin: 14px auto 0 auto;     
+  background: #1c1c1c;         
+  padding: 8px 18px;           
   border-radius: 10px;
   color: #fff !important;
   font-weight: 700;
   font-size: 0.9rem;
   text-align: center;
-
-  width: fit-content;            /* Perfect button width */
+  width: fit-content;            
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  gap: 6px;                      /* Space for icon if added later */
+  gap: 6px;                    
   cursor: pointer;
   transition: .25s ease;
   box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
-
 #view-btn:hover {
   background: #000;
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(0,0,0,0.25);
 }
-
 /* =============================
    VIEWER POPUP OVERLAY
 ============================= */
-
 #pdf-viewer-popup {
   display: none;
   position: fixed;
@@ -468,7 +402,6 @@ select {
   z-index: 9999;
   overflow: hidden;
 }
-
 /* Viewer shell */
 .popup-inner {
   width: 100%;
@@ -480,7 +413,6 @@ select {
   flex-direction: column;
   overflow: hidden;
 }
-
 /* Top bar */
 .viewer-controls {
   display: flex;
@@ -491,7 +423,6 @@ select {
   border-bottom: 1px solid rgba(0,0,0,0.1);
   z-index: 10;
 }
-
 #close-viewer {
   background:#000;
   color:#fff;
@@ -501,13 +432,11 @@ select {
   font-size:16px;
   cursor:pointer;
 }
-
 .viewer-actions {
   display:flex;
   align-items:center;
   gap:12px;
 }
-
 #reorder-toggle {
   display:none;
   padding:8px 12px;
@@ -517,46 +446,37 @@ select {
   font-weight:700;
   cursor:pointer;
 }
-
 #reorder-toggle[aria-pressed="true"] {
   background:#ffe8a3;
   border-color:#ffc107;
 }
-
 .reorder-status {
   font-size:13px;
   font-weight:600;
   color:#444;
 }
-
 /* PDF */
 #pdf-frame {
   flex: 1;
   width: 100%;
   border: none;
 }
-
 /* =============================
    IMAGE GALLERY — THE CORE FIX
 ============================= */
-
 #img-gallery {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-
   display: flex;
   flex-direction: column;
   gap: 24px;
-
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
   padding: 20px 0;
 }
-
-/* Each page card */
 .img-item {
   width: 100%;
   background: #f8f8f8;
@@ -565,13 +485,10 @@ select {
   cursor: grab;
   user-select: none;
 }
-
 .img-item.dragging {
   opacity: 0.45;
   cursor: grabbing;
 }
-
-/* IMPORTANT: Do NOT limit image height */
 .img-item img {
   width: 100%;
   height: auto;
@@ -579,28 +496,22 @@ select {
   display: block;
   pointer-events: none;
 }
-
-/* Reorder mode visuals */
 .popup-inner.reorder-mode .img-item {
   outline: 2px dashed #bbb;
   background: #fffdf3;
 }
-
 /* =============================
    MOBILE
 ============================= */
-
 @media (max-width: 768px) {
   .popup-inner {
     max-width: 100%;
     border-radius: 0;
   }
-
   #img-gallery {
     padding: 12px 0;
     gap: 18px;
   }
-
   .img-item {
     padding: 10px;
     border-radius: 8px;
@@ -609,39 +520,31 @@ select {
 /* ===============================
    REORDER MODE (VISUAL + DRAG)
 ================================ */
-
 .popup-inner.reorder-mode #img-gallery {
   cursor: grabbing;
 }
-
 .popup-inner.reorder-mode .img-item {
   outline: 2px dashed #bbb;
   background: #fffdf3;
   transition: 0.15s ease;
 }
-
 .img-item.dragging {
   opacity: 0.45;
   transform: scale(0.97);
 }
-
 /* ===============================
-   DESKTOP IMAGE SIZE CONTROL
-   (NO SCROLL BREAK)
+   DESKTOP IMAGE SIZE 
 ================================ */
-
 @media (min-width: 1024px) {
   .img-item img {
-    max-height: 72vh;   /* limits big pages */
+    max-height: 72vh;   
     width: auto;
     margin: 0 auto;
     display: block;
   }
-
   .img-item {
     padding: 18px;
   }
-
   #img-gallery {
     max-width: 920px;
     margin: 0 auto;
@@ -650,7 +553,6 @@ select {
 /* ============================
    PDF MERGE — REORDER UI
 ============================ */
-
 #img-gallery .pdf-item {
   display: flex;
   align-items: center;
@@ -661,29 +563,23 @@ select {
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   cursor: grab;
 }
-
 #img-gallery .pdf-item.dragging {
   opacity: 0.5;
 }
-
 .pdf-icon {
   font-size: 28px;
 }
-
 .pdf-info {
   flex: 1;
 }
-
 .pdf-name {
   font-weight: 700;
   font-size: 15px;
 }
-
 .pdf-meta {
   font-size: 13px;
   opacity: 0.6;
 }
-
 .pdf-view-btn {
   background: #111;
   color: #fff;
