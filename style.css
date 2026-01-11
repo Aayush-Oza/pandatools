@@ -606,3 +606,90 @@ select {
     border-radius: 8px;
   }
 }
+/* ===============================
+   REORDER MODE (VISUAL + DRAG)
+================================ */
+
+.popup-inner.reorder-mode #img-gallery {
+  cursor: grabbing;
+}
+
+.popup-inner.reorder-mode .img-item {
+  outline: 2px dashed #bbb;
+  background: #fffdf3;
+  transition: 0.15s ease;
+}
+
+.img-item.dragging {
+  opacity: 0.45;
+  transform: scale(0.97);
+}
+
+/* ===============================
+   DESKTOP IMAGE SIZE CONTROL
+   (NO SCROLL BREAK)
+================================ */
+
+@media (min-width: 1024px) {
+  .img-item img {
+    max-height: 72vh;   /* limits big pages */
+    width: auto;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .img-item {
+    padding: 18px;
+  }
+
+  #img-gallery {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+}
+/* ============================
+   PDF MERGE — REORDER UI
+============================ */
+
+#img-gallery .pdf-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  cursor: grab;
+}
+
+#img-gallery .pdf-item.dragging {
+  opacity: 0.5;
+}
+
+.pdf-icon {
+  font-size: 28px;
+}
+
+.pdf-info {
+  flex: 1;
+}
+
+.pdf-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.pdf-meta {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.pdf-view-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
