@@ -476,7 +476,7 @@ select {
   inset: 0;
   background: rgba(0,0,0,0.75);
   z-index: 9999;
-  overflow-y: auto;      /* popup scrolls, not inner content */
+  overflow: hidden;*/
   -webkit-overflow-scrolling: touch;
   padding: 24px 12px;
 }
@@ -488,7 +488,8 @@ select {
   margin: 18px auto;
   background: #fff;
   border-radius: 12px;
-  overflow: visible !important;
+  overflow-y: auto;
+  max-height: 90vh;
   box-shadow: 0 20px 40px rgba(0,0,0,0.35);
   position: relative;
   padding-bottom: 18px;
@@ -630,11 +631,16 @@ select {
     margin: 0 !important;
     border-radius: 0 !important;
     width: 100% !important;
-    height: 100vh !important;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     max-height: 100vh !important;
-    overflow-y: auto !important;
   }
-
+  #img-gallery {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  }
   #pdf-frame {
     height: calc(100vh - 80px) !important;
   }
