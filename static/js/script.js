@@ -550,12 +550,6 @@ function handleExtractText(blob) {
 
   reader.readAsText(blob);
 }
-
-
-/* ============================================================
-   DOWNLOAD NAME MAP
-============================================================ */
-
 /* ============================================================
    UTILITIES
 ============================================================ */
@@ -592,7 +586,7 @@ function escapeHtml(s) {
 }
 
 function openTool(t) {
-  location.href = `tool.html?tool=${t}`;
+  location.href = `templates/tool.html?tool=${t}`;
 }
 function getDefaultName(tool, originalName) {
   const base = originalName.replace(/\.[^/.]+$/, "");
@@ -611,3 +605,4 @@ function getDefaultName(tool, originalName) {
 
   return map[tool] || `${base}.pdf`;
 }
+
