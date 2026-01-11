@@ -469,30 +469,30 @@ select {
 ============================= */
 
 /* ====== Viewer popup + Reorder Mode CSS ====== */
-
 #pdf-viewer-popup {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
   z-index: 9999;
-  overflow: hidden;*/
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   padding: 24px 12px;
 }
 
-/* popup inner */
+
 .popup-inner {
   width: 100%;
   max-width: 920px;
   margin: 18px auto;
   background: #fff;
   border-radius: 12px;
-  overflow-y: auto;
-  max-height: 90vh;
   box-shadow: 0 20px 40px rgba(0,0,0,0.35);
   position: relative;
-  padding-bottom: 18px;
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* top controls row */
@@ -556,15 +556,17 @@ select {
   display:block;
 }
 
-/* FORCE VERTICAL STACK */
 #img-gallery {
+  flex: 1;
   display: flex;
-  flex-direction: column;   /* 🔥 vertical */
+  flex-direction: column;
   gap: 20px;
   width: 100%;
   max-width: 820px;
   margin: 0 auto;
   padding: 12px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Each image card */
@@ -618,7 +620,6 @@ select {
 }
 
 /* hide scrollbar on some platforms if desired (optional) */
-#img-gallery::-webkit-scrollbar { height:8px; width:8px; }
 /* MOBILE FIX FOR POPUP VIEWER */
 @media (max-width: 700px) {
 
@@ -635,11 +636,6 @@ select {
     display: flex;
     flex-direction: column;
     max-height: 100vh !important;
-  }
-  #img-gallery {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   }
   #pdf-frame {
     height: calc(100vh - 80px) !important;
@@ -822,3 +818,4 @@ body.ready {
     transform: scale(0.98);
   }
 }
+
