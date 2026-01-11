@@ -270,12 +270,6 @@ function renderGallery(container) {
       const div = document.createElement("div");
       div._file = file;
       div.draggable = reorderMode;
-      if (reorderMode) {
-  div.classList.add("reorder-active");
-} else {
-  div.classList.remove("reorder-active");
-}
-
       if (tool === "merge-pdf") {
         div.className = "pdf-item";
         const sizeKB = Math.round(file.size / 1024);
@@ -320,7 +314,7 @@ function enableDrag(container) {
 
   const gallery = $id("img-gallery");
 
-  container.querySelectorAll(".img-item").forEach(item => {
+  container.querySelectorAll(".img-item, .pdf-item").forEach(item => {
 
     item.addEventListener("dragstart", e => {
       dragged = item._file;
@@ -331,30 +325,25 @@ function enableDrag(container) {
     item.addEventListener("dragend", () => {
       item.classList.remove("dragging");
       dragged = null;
-      gallery.scrollTop = gallery.scrollTop; // stop momentum
+      gallery.scrollTop = gallery.scrollTop;
     });
 
     item.addEventListener("dragover", e => {
       e.preventDefault();
 
-      // 🔥 AUTO SCROLL
+      // auto-scroll
       const rect = gallery.getBoundingClientRect();
       const y = e.clientY;
-
-      const zone = 80; // px from top/bottom
+      const zone = 80;
       const speed = 25;
 
-      if (y < rect.top + zone) {
-        gallery.scrollTop -= speed;
-      } else if (y > rect.bottom - zone) {
-        gallery.scrollTop += speed;
-      }
+      if (y < rect.top + zone) gallery.scrollTop -= speed;
+      else if (y > rect.bottom - zone) gallery.scrollTop += speed;
     });
 
     item.addEventListener("drop", e => {
       e.preventDefault();
       const target = item._file;
-
       if (!dragged || dragged === target) return;
 
       const from = galleryOrder.indexOf(dragged);
@@ -365,27 +354,8 @@ function enableDrag(container) {
 
       renderGallery(container);
     });
-
   });
 }
-function moveItem(from, to) {
-  if (to < 0 || to >= galleryOrder.length) return;
-
-  const item = galleryOrder.splice(from, 1)[0];
-  galleryOrder.splice(to, 0, item);
-}
-
-function swapImages(a, b, container) {
-  if (a === b) return;
-
-  const temp = galleryOrder[a];
-  galleryOrder[a] = galleryOrder[b];
-  galleryOrder[b] = temp;
-
-  // 🔥 Re-render and re-bind indexes
-  renderGallery(container);
-}
-
 function applyReorderToInput() {
   const tool = new URLSearchParams(window.location.search).get("tool");
   if (!["jpg-to-pdf", "merge-pdf"].includes(tool)) return;
@@ -641,7 +611,3 @@ function getDefaultName(tool, originalName) {
 
   return map[tool] || `${base}.pdf`;
 }
-
-
-
-
