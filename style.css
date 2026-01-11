@@ -459,348 +459,150 @@ select {
 /* =============================
    VIEWER POPUP OVERLAY
 ============================= */
+
 #pdf-viewer-popup {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.88);
   z-index: 9999;
-  overflow: hidden;
-  padding: 24px 12px;
-}
-.popup-inner {
-  width: 100%;
-  max-width: 920px;
-  margin: 18px auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
   overflow: hidden;
 }
 
-/* top controls row */
+/* Viewer shell */
+.popup-inner {
+  width: 100%;
+  max-width: 1200px;
+  height: 100vh;
+  margin: 0 auto;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Top bar */
 .viewer-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  gap: 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  z-index: 10;
 }
 
-/* close button */
 #close-viewer {
   background:#000;
   color:#fff;
   border:none;
   padding:8px 12px;
   border-radius:8px;
-  font-size:18px;
+  font-size:16px;
   cursor:pointer;
 }
 
-/* actions area (reorder toggle + status) */
 .viewer-actions {
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:12px;
 }
 
 #reorder-toggle {
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+  display:none;
   padding:8px 12px;
   border-radius:8px;
-  background:#f1f1f1;
   border:1px solid #ddd;
-  cursor:pointer;
+  background:#f5f5f5;
   font-weight:700;
+  cursor:pointer;
 }
 
 #reorder-toggle[aria-pressed="true"] {
-  background:#ffeeba;
+  background:#ffe8a3;
   border-color:#ffc107;
-  color:#222;
 }
 
 .reorder-status {
   font-size:13px;
-  color:#444;
   font-weight:600;
-  display:inline-block;
+  color:#444;
 }
 
-/* PDF iframe full area */
+/* PDF */
 #pdf-frame {
-  width:100%;
-  height:calc(100vh - 160px); /* reasonable height */
-  border:none;
-  display:block;
+  flex: 1;
+  width: 100%;
+  border: none;
 }
+
+/* =============================
+   IMAGE GALLERY — THE CORE FIX
+============================= */
 
 #img-gallery {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  min-height:0;
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 12px;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
-/* Each image card */
+/* Each page card */
 .img-item {
   width: 100%;
-  height: auto;
-  max-height: none;
+  background: #f8f8f8;
+  padding: 16px;
+  border-radius: 10px;
   cursor: grab;
   user-select: none;
-  touch-action: none;       /* 🔥 required for drag */
 }
 
 .img-item.dragging {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: grabbing;
 }
 
-/* Image should NOT capture drag */
+/* IMPORTANT: Do NOT limit image height */
 .img-item img {
   width: 100%;
   height: auto;
+  max-height: none !important;
   display: block;
-  pointer-events: none;     /* 🔥 VERY IMPORTANT */
+  pointer-events: none;
 }
 
-/* small hint shown at bottom when reorder is enabled */
-.popup-inner .reorder-hint-inline {
-  display:block;
-  text-align:center;
-  padding:8px;
-  font-size:13px;
-  color:#555;
+/* Reorder mode visuals */
+.popup-inner.reorder-mode .img-item {
+  outline: 2px dashed #bbb;
+  background: #fffdf3;
 }
 
-/* Responsive: full width on small screens */
-@media (max-width:700px) {
+/* =============================
+   MOBILE
+============================= */
+
+@media (max-width: 768px) {
   .popup-inner {
-    max-width:100%;
-    margin: 0;
+    max-width: 100%;
     border-radius: 0;
   }
 
-  #pdf-frame { height: calc(100vh - 120px); }
-
-  #reorder-toggle { padding:7px 10px; font-size:14px; }
-}
-
-/* When reorder mode is ON add a subtle border to img rows (visual affordance) */
-.popup-inner.reorder-mode .img-item {
-  border-radius:8px;
-  padding:6px;
-  background: rgba(255,235,205,0.6);
-}
-
-/* hide scrollbar on some platforms if desired (optional) */
-/* MOBILE FIX FOR POPUP VIEWER */
-@media (max-width: 700px) {
-
-  #pdf-viewer-popup {
-    padding: 0 !important;
-    align-items: flex-start;
-  }
-
-  .popup-inner {
-    margin: 0 !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    max-height: 100vh !important;
-  }
-  #pdf-frame {
-    height: calc(100vh - 80px) !important;
-  }
-}
-/* -------------------------------------
-   PERFECT HORIZONTAL ROW FOR PDF ITEMS
-------------------------------------- */
-
-.pdf-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-
-    width: 100%;
-    background: #fff;
-    padding: 12px 16px;
-    border-radius: 12px;
-
-    margin-bottom: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
-
-    cursor: grab;
-    transition: 0.25s ease;
-}
-
-.pdf-item:active {
-    cursor: grabbing;
-}
-
-.pdf-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-
-/* Icon */
-.pdf-icon {
-    font-size: 28px;
-    opacity: 0.9;
-    margin-right: 10px;
-}
-
-/* Text Section */
-.pdf-info {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.pdf-name {
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.pdf-meta {
-    font-size: 13px;
-    opacity: 0.65;
-}
-
-/* VIEW BUTTON */
-.pdf-view-btn {
-    background: #111;
-    color: #fff;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.pdf-view-btn:hover {
-    background: #000;
-}
-body {
-    opacity: 0;
-    transition: 0.25s ease;
-}
-
-body.ready {
-    opacity: 1;
-}
-@media (min-width: 900px) {
-  #img-gallery img {
-    max-height: 75vh;
-    margin: 0 auto;
-    display: block;
-  }
-}
-@media (min-width: 1024px) {
-  .popup-inner {
-    max-width: 1100px;   /* wider viewer */
-    padding: 24px 0;
-  }
-}
-@media (min-width: 900px) {
-  #img-gallery img {
-    width: auto;
-    margin: 0 auto;
-    display: block;
-    background: #fff;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
-    border-radius: 6px;
-  }
-}
-@media (min-width: 900px) {
   #img-gallery {
-    gap: 28px;   /* instead of 40+ */
+    padding: 12px 0;
+    gap: 18px;
   }
-}
-@media (min-width: 900px) {
+
   .img-item {
-    padding: 14px 0;
-    background: #f7f7f7;
+    padding: 10px;
     border-radius: 8px;
   }
 }
-@media (min-width: 900px) {
-  #pdf-viewer-popup {
-    background: rgba(0,0,0,0.85);
-  }
-}
-/* ============================
-   DESKTOP VIEWER — FINAL FIX
-============================ */
-@media (min-width: 1024px) {
-
-  /* Darker, cleaner backdrop */
-  #pdf-viewer-popup {
-    background: rgba(0,0,0,0.88);
-  }
-
-  /* Wider viewer */
-  .popup-inner {
-    max-width: 1200px;
-    padding: 24px 0 40px;
-  }
-
-  /* Center gallery with controlled width */
-  #img-gallery {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px 0;
-    gap: 32px;
-  }
-
-  /* Each page as a clean card */
-  .img-item {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.15);
-  }
-
-  /* Image sizing — VERY IMPORTANT */
-  .img-item img {
-    max-height: 68vh;        /* prevents ultra tall images */
-    width: auto;
-    margin: 0 auto;
-    display: block;
-    border-radius: 6px;
-  }
-
-  /* Reorder visual clarity */
-  .popup-inner.reorder-mode .img-item {
-    outline: 2px dashed #bbb;
-    background: #fffdf5;
-  }
-
-  /* Smooth drag feeling */
-  .img-item.dragging {
-    opacity: 0.45;
-    transform: scale(0.98);
-  }
-}
-
