@@ -318,6 +318,8 @@ frag.appendChild(div);
 function enableDrag(container) {
   let dragged = null;
 
+  const gallery = $id("img-gallery");
+
   container.querySelectorAll(".img-item").forEach(item => {
 
     item.addEventListener("dragstart", e => {
@@ -329,10 +331,24 @@ function enableDrag(container) {
     item.addEventListener("dragend", () => {
       item.classList.remove("dragging");
       dragged = null;
+      gallery.scrollTop = gallery.scrollTop; // stop momentum
     });
 
     item.addEventListener("dragover", e => {
       e.preventDefault();
+
+      // 🔥 AUTO SCROLL
+      const rect = gallery.getBoundingClientRect();
+      const y = e.clientY;
+
+      const zone = 80; // px from top/bottom
+      const speed = 25;
+
+      if (y < rect.top + zone) {
+        gallery.scrollTop -= speed;
+      } else if (y > rect.bottom - zone) {
+        gallery.scrollTop += speed;
+      }
     });
 
     item.addEventListener("drop", e => {
@@ -625,5 +641,6 @@ function getDefaultName(tool, originalName) {
 
   return map[tool] || `${base}.pdf`;
 }
+
 
 
