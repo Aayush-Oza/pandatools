@@ -5,32 +5,18 @@
   <link rel="stylesheet" href="/static/css/style.css">
   <title>PandaTools • Tool</title>
 </head>
-
 <body>
-
-<!-- HERO -->
 <section class="hero">
   <h1 class="hero-title" id="toolName">Tool</h1>
 </section>
-
-<!-- UPLOAD BOX -->
 <div class="container upload-box">
-
-    <!-- File Upload (Custom UI) -->
 <label class="upload-label">
   <input type="file" id="fileInput" class="hidden-input">
   <span class="upload-text">🐼 Choose Files</span>
 </label>
-
-<!-- Uploaded File List -->
 <div id="fileList" class="file-list"></div>
-
-
-    <!-- Password (Protect/Unlock) -->
     <input type="password" id="passwordInput" placeholder="Enter password"
            style="display:none;margin-top:10px;">
-
-    <!-- Split PDF Ranges -->
     <input type="text" id="rangeInput" placeholder="Enter page ranges (e.g. 1-3,5)"
            style="display:none;margin-top:10px;">
     <select id="compressLevel" style="display:none;margin-top:10px;">
@@ -38,23 +24,17 @@
   <option value="medium">Balanced</option>
   <option value="high">Best Quality</option>
 </select>
-
-    <!-- Rotate Angle -->
     <select id="angleInput" style="display:none;margin-top:10px;">
         <option value="90">Rotate 90°</option>
         <option value="180">Rotate 180°</option>
         <option value="270">Rotate 270°</option>
     </select>
-    <!-- PDF-to-JPG Page Selection -->
 <input 
   type="text"
   id="pagesInput"
   placeholder="Pages (e.g., 1,3,5-7 or leave empty for ALL)"
   style="display:none; margin-top:10px;"
 >
-
-
-    <!-- Process Button -->
     <button class="btn" onclick="processFile()" style="margin-top:15px;">Upload & Process</button>
     <p id="reorder-hint" style="
     display:none;
@@ -67,10 +47,7 @@
 ">
     📌 Tip: Drag & drop images to arrange their order.
 </p>
-
     <button id="view-btn">👁️ View File</button>
-
-    <!-- Progress Bar -->
     <div id="progress-wrapper">
       <div id="progress-bar"></div>
       <span id="progress-percent">0%</span>
@@ -82,27 +59,14 @@
     font-weight:700;
     border-radius:10px;
 "></p>
-
-    <!-- Download Button -->
     <a id="download-btn" href="#" download>📥 Download File</a>
-
-
-    <!-- Extracted Text Output -->
     <textarea id="textOutput" 
       style="display:none;width:100%;height:300px;margin-top:20px;padding:10px;font-size:14px;"></textarea>
-
 </div>
-<!-- FILE VIEWER POPUP -->
-<!-- VIEWER POPUP -->
-<!-- FILE VIEWER POPUP -->
 <div id="pdf-viewer-popup" aria-hidden="true">
   <div class="popup-inner" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
-
-    <!-- top controls -->
     <div class="viewer-controls">
       <button id="close-viewer" aria-label="Close viewer">✖</button>
-
-      <!-- Reorder toggle (only shows when multiple images) -->
       <div class="viewer-actions">
         <button id="reorder-toggle" aria-pressed="false" title="Enable reorder" style="display:none;">
           ↕ Reorder
@@ -110,38 +74,22 @@
         <span id="reorder-status" class="reorder-status" style="display:none;">Drag to reorder (Reorder ON)</span>
       </div>
     </div>
-
-    <!-- PDF iframe -->
     <iframe id="pdf-frame" style="display:none;" title="PDF preview"></iframe>
-
-    <!-- single image preview -->
     <img id="img-preview" style="display:none; width:100%; height:auto; object-fit:contain;" alt="Image preview">
-
-    <!-- multiple image gallery -->
     <div id="img-gallery" style="display:none;"></div>
-
-    <!-- info box -->
     <div id="viewer-info" style="display:none;"></div>
   </div>
 </div>
-
-
 <script src="/static/js/script.js"></script>
-
-<!-- FOOTER -->
 <footer class="site-footer">
   <div class="container footer-grid">
-
       <div class="footer-card">
         <h3>Contact</h3>
         <p>Email: aayushoza2006@gmail.com</p>
       </div>
-
       <div class="footer-card">
         <h3>Follow Me</h3>
         <div class="socials">
-
-            <!-- Instagram Icon -->
             <a class="social" href="https://www.instagram.com/aayushoza_" target="_blank">
               <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 
@@ -153,7 +101,6 @@
                 0-2.5 1.25 1.25 0 0 0 0 2.5z"/>
               </svg>
             </a>
-
             <!-- LinkedIn Icon -->
             <a class="social" href="https://linkedin.com/in/aayushoza" target="_blank">
               <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
@@ -167,7 +114,6 @@
                 2-2.9 4V24h-4V8z"/>
               </svg>
             </a>
-
             <!-- GitHub Icon -->
             <a class="social" href="https://github.com/Aayush-Oza" target="_blank">
               <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
@@ -186,13 +132,11 @@
                 0 0 12 .5Z"/>
               </svg>
             </a>
-
         </div>
       </div>
     <div class="footer-card">
   <h3>My Portfolio</h3>
   <p>Explore my projects, designs, and complete work showcase.</p>
-
   <a 
     href="https://aayushozaportfolio.netlify.app/" 
     target="_blank" 
@@ -213,17 +157,10 @@
     Visit Portfolio →
   </a>
 </div>
-
   </div>
-
   <p style="text-align:center;margin-top:20px;">© 2025 PandaTools</p>
 </footer>
-
-
 </body>
 </html>
-
-
-
 
 
