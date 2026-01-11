@@ -244,7 +244,7 @@ function showReorderToggle() {
     status.style.display = reorderMode ? "inline-block" : "none";
 
     // 🔥 CRITICAL: stop scroll while dragging
-    popupInner.style.overflowY = reorderMode ? "hidden" : "auto";
+    $id("img-gallery").style.overflowY = reorderMode ? "hidden" : "auto";
 
     // 🔥 Visual cue
     popupInner.classList.toggle("reorder-mode", reorderMode);
@@ -625,4 +625,5 @@ function getDefaultName(tool, originalName) {
 
   return map[tool] || `${base}.pdf`;
 }
+
 
